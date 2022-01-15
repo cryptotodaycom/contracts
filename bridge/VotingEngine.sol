@@ -8,13 +8,33 @@ import '@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import '@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol';
 import '@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol';
 import '../interfaces/IERC20Base.sol';
+import '../utils/Signature.sol';
 
 contract VotingEngine is
   PausableUpgradeable,
   ReentrancyGuardUpgradeable,
-  OwnableUpgradeable
+  OwnableUpgradeable,
+  Signature
 {
-    using SafeMathUpgradeable for uint256;
-    address NULL_ADDRESS;
+    mapping(address => uint256) public nonceMap;
+    mapping(address => uint256) public withdrawn;
 
+    function withdraw(
+        uint256 amount,
+        uint256 nonce,
+        bytes calldata signature
+    ) external {
+        require(
+            verify(owner(), msg.sender, amount, nonce, signature),
+            "Invalid signature"
+        );
+
+        // Current nonce has to match this one to avoid double withdrawals
+        require(nonceMap[msg.sender] == nonce, "Invalid nonce");
+
+        //TODO: transfer logic
+
+        nonceMap[msg.sender]++;
+        withdrawn[msg.sender] += amount;
+    }
 }

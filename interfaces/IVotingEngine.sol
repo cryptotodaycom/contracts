@@ -3,24 +3,20 @@
 pragma solidity 0.8.11;
 
 interface IVotingEngine {
-    struct Token {
-        address user;
-        uint256 amount;
-    }
-
     event Deposited(address indexed user, uint256 amount);
-    event PreparedWithdrawal(address indexed user, uint256 amount);
+    event Withdrawn(address indexed user, uint256 amount);
 
     event VoteProposed(uint256 indexed proposal, uint256 rewards);
     event VoteResolved(uint256 indexed proposal, uint256 rewards);
 
     //User facing deposit and withdraw functions, deposit emits a Deposited event
     function deposit(uint256 amount) external returns (uint256 balance);
-    //withdraw requires funds to be ready for withdrawal, doesn't emit
-    function withdraw(uint256 amount) external returns (uint256 balance);
-
-    //Admin prepare withdrawals for addresses, should be ran on a daily basis
-    function prepareWithdrawals(Token[] memory tokens) external;
+    //We sign the withdrawal request, moving the gas cost onto the user
+    function withdraw(
+        uint256 amount,
+        uint256 nonce,
+        bytes calldata signature
+    ) external returns (uint256 balance);
 
     //User facing proposeVote with a reward amount (minimum exists)
     function proposeVote(uint256 rewardAmount) external returns (uint256 id);
