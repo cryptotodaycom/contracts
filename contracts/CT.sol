@@ -1,6 +1,6 @@
 //SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity 0.8.11;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
@@ -9,6 +9,7 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 
 // TODO: should it be capped?
 contract CT is ERC20Capped, Ownable, Pausable {
+
   struct AddressSet {
     address[] values;
     mapping(address => bool) isIn;
@@ -53,14 +54,13 @@ contract CT is ERC20Capped, Ownable, Pausable {
     }
   }
 
-  // TODO: should we allow to unpause (activate sale) only once?
+  // TODO: should we allow to unpause (activate sale) only once? automatically shuts down after 7 days
   function unpause() external onlyOwner {
     _unpause();
   }
 
-  //  TODO: should we set timeout for sale?
-  function invest() external payable whenNotPaused {
-    address investor = _msgSender();
+  //  TODO: should we set timeout for sale? Sale will last 7 days, from the point its started
+  function invest(address investor) external payable whenNotPaused {
     uint256 stake = msg.value;
 
     investments[investor] += stake;

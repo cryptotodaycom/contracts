@@ -1,6 +1,6 @@
 //SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity 0.8.11;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
@@ -17,7 +17,7 @@ contract CTDummy is ERC20Capped, Ownable, Pausable {
     string memory name,
     string memory symbol,
     uint256 cap,
-    Balance[] memory balances
+    Balance[] memory balances //At most 20 addresses, 10% of the CT market cap goes to CT dummy
   ) ERC20(name, symbol) ERC20Capped(cap) {
     for (uint256 i = 0; i < balances.length; i++) {
       _mint(balances[i].account, balances[i].amount);
