@@ -19,7 +19,7 @@ interface IVotingEngine {
     ) external;
 
     //User facing proposeVote with a reward amount (minimum exists)
-    function proposeVote(uint256 rewardAmount) external returns (uint256 id);
+    function proposeVote(uint256 rewardAmount) external;
     //Admin vote resolution, resolves the vote to an IPFS hash with the votes (explained elsewhere)
     function resolveVote(uint256 id, string memory ipfs) external;
     //Returns the ipfs hash associated with a vote's results.

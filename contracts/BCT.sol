@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
 // TODO: should it be capped?
-contract CT is ERC20Capped, Ownable, Pausable {
+contract BCT is ERC20Capped, Ownable, Pausable {
 
   struct AddressSet {
     address[] values;
@@ -25,18 +25,16 @@ contract CT is ERC20Capped, Ownable, Pausable {
   uint256 public immutable contractCreatedTS;
 
   // public or private?
-  IERC20 public immutable ctDummy;
+  IERC20 public immutable bctDummy;
 
   constructor(
-    string memory name,
-    string memory symbol,
     uint256 cap,
-    address ctDummyAddress
-  ) ERC20(name, symbol) ERC20Capped(cap) {
+    address bctDummyAddress
+  ) ERC20("Blockchain Crypto Today", "BCT") ERC20Capped(cap) {
     contractCreatedTS = block.timestamp;
-    ctDummy = IERC20(ctDummyAddress);
+    bctDummy = IERC20(bctDummyAddress);
 
-    uint256 totalSupply = cap - IERC20(ctDummyAddress).totalSupply(); // TODO: check if true
+    uint256 totalSupply = cap - IERC20(bctDummyAddress).totalSupply(); // TODO: check if true
     _mint(address(this), totalSupply);
 
     _pause();
@@ -80,7 +78,7 @@ contract CT is ERC20Capped, Ownable, Pausable {
     require(diff > 365, "Allow claiming after one year");
 
     address claimer = _msgSender();
-    ctDummy.transferFrom(claimer, address(this), amount);
+    bctDummy.transferFrom(claimer, address(this), amount);
     _mint(claimer, amount);
   }
 }

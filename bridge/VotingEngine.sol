@@ -51,7 +51,7 @@ contract VotingEngine is
     uint256 amount,
     uint256 nonce,
     bytes calldata signature
-  ) external {
+  ) external whenNotPaused nonReentrant {
     require(
       verify(owner(), msg.sender, amount, nonce, signature),
       "Invalid signature"
@@ -70,7 +70,7 @@ contract VotingEngine is
   
   function deposit(
     uint256 amount
-  ) external {
+  ) external whenNotPaused {
     bct.transferFrom(
             _msgSender(),
             address(this),
@@ -80,7 +80,7 @@ contract VotingEngine is
     emit Deposited(_msgSender(), amount);
   }
 
-  function proposeVote(uint256 rewardAmount) external returns (uint256 id) {
+  function proposeVote(uint256 rewardAmount) external whenNotPaused {
     uint256 voteId = _voteCounter;
 
     bct.transferFrom(
@@ -91,8 +91,6 @@ contract VotingEngine is
 
     _voteCounter++;
     emit VoteProposed(voteId, rewardAmount);
-
-    return voteId;
   }
 
   function resolveVote(uint256 id, string memory ipfs) external onlyOwner  {

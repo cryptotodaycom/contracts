@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
-contract CTDummy is ERC20Capped, Ownable, Pausable {
+contract BCTDummy is ERC20Capped, Ownable, Pausable {
   struct Balance {
     address account;
     uint256 amount;
@@ -17,7 +17,7 @@ contract CTDummy is ERC20Capped, Ownable, Pausable {
     string memory name,
     string memory symbol,
     uint256 cap,
-    Balance[] memory balances //At most 20 addresses, 10% of the CT market cap goes to CT dummy
+    Balance[] memory balances //At most 20 addresses, 10% of the BCT market cap goes to BCT dummy
   ) ERC20(name, symbol) ERC20Capped(cap) {
     for (uint256 i = 0; i < balances.length; i++) {
       _mint(balances[i].account, balances[i].amount);
