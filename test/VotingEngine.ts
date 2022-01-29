@@ -8,6 +8,7 @@ import { ethers, upgrades } from "hardhat";
   await tx.wait();
 }; */
 
+/*
 describe("VotingEngine", async function () {
   it("should have correct addresses", async function () {
     const [, user1] = await ethers.getSigners();
@@ -33,3 +34,4 @@ describe("VotingEngine", async function () {
     expect(await votingEngine.bct().address).to.equal(cryptoTodayFutures.address);
   });
 });
+*/

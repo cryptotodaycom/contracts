@@ -37,17 +37,19 @@ contract BCT is ERC20Capped, Ownable, Pausable {
     saleStartedTS = block.timestamp;
     bctFuture = IERC20(bctFutureAddress);
 
-    uint256 totalSupply = cap - IERC20(bctFutureAddress).totalSupply(); // TODO: check if true
-    _mint(address(this), totalSupply);
+    _mint(address(this), (3 * cap) / 100);
 
     _pause();
   }
 
-  // end sale
-  function pause() external onlyOwner {
+  function mintToEngine(address engine) external onlyOwner {
+    _mint(engine, (87 * cap()) / 100);
+  }
+
+  function endSale() external onlyOwner {
     _pause();
 
-    uint256 _claimableSupply = (3 * totalSupply()) / 100;
+    uint256 _claimableSupply = totalSupply();
     for (uint256 i = 0; i < _investors.values.length; i++) {
       address investor = _investors.values[i];
       uint256 share = (_claimableSupply * investments[investor]) / totalStake;
@@ -55,15 +57,17 @@ contract BCT is ERC20Capped, Ownable, Pausable {
     }
   }
 
-  // TODO: should we allow to unpause (activate sale) only once? automatically shuts down after 7 days
   function startSale() external onlyOwner {
     require(!_saleEnded, "saleEnded");
     saleStartedTS = block.timestamp;
     _unpause();
   }
 
-  //  TODO: should we set timeout for sale? Sale will last 7 days, from the point its started
-  function invest(address investor) external payable whenNotPaused {
+  //only referals from those who invested are valid, a link of the from ?referer=abcdef
+  //is generated once the investment is made (this referal will be rejected by the smart
+  //contract if the investment is for example denied)
+  function investFor(address investor, address payable referer) public payable whenNotPaused {
+    require(!_investors.investments[referer].isIn, "refererNotInvested");
     uint256 stake = msg.value;
 
     investments[investor] += stake;
@@ -73,6 +77,8 @@ contract BCT is ERC20Capped, Ownable, Pausable {
       _investors.values.push(investor);
       _investors.investments[investor].isIn = true;
     }
+
+    referer.transfer(stake / 20);
 
     emit Investment(investor, stake, block.timestamp);
   }
@@ -93,7 +99,8 @@ contract BCT is ERC20Capped, Ownable, Pausable {
     require(diff > 365, "Allow claiming after one year");
 
     address claimer = _msgSender();
-    bctFuture.transferFrom(claimer, address(this), amount);
+    // burn BCTFuture when claiming BCT
+    bctFuture.transferFrom(claimer, address(0), amount);
     _mint(claimer, amount);
   }
 }

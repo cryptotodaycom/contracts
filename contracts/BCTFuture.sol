@@ -13,10 +13,7 @@ contract BCTFuture is ERC20Capped, Ownable, Pausable {
     uint256 amount;
   }
 
-  constructor(
-    uint256 cap,
-    Balance[] memory balances //At most 20 addresses, 10% of the BCT market cap goes to BCT future
-  ) ERC20("Crypto Today Futures", "BCTF") ERC20Capped(cap) {
+  constructor(uint256 cap, Balance[] memory balances) ERC20("Crypto Today Futures", "BCTF") ERC20Capped(cap) {
     for (uint256 i = 0; i < balances.length; i++) {
       _mint(balances[i].account, balances[i].amount);
     }
