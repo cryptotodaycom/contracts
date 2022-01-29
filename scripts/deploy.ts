@@ -1,30 +1,47 @@
-// We require the Hardhat Runtime Environment explicitly here. This is optional
-// but useful for running the script in a standalone fashion through `node <script>`.
-//
-// When running the script with `npx hardhat run <script>` you'll find the Hardhat
-// Runtime Environment's members available in the global scope.
-import { ethers } from "hardhat";
+import { BigNumber } from "ethers";
+import { upgrades } from "hardhat";
+import { BCT, BCTFuture, VotingEngine } from "../typechain";
+
+const { ethers } = require("hardhat");
+
+const supply: BigNumber = ethers.utils.parseUnits("100000000000", 18);
+const accountList = [
+  { account: "0xabc", amount: supply.div(30).toString() },
+  { account: "0xabc", amount: supply.mul(2).div(30).toString() },
+];
 
 async function main() {
-  // Hardhat always runs the compile task when running scripts with its command
-  // line interface.
-  //
-  // If this script is run directly using `node` you may want to call compile
-  // manually to make sure everything is compiled
-  // await hre.run('compile');
+  // Deploy BCT Futures tokens
+  const CryptoTodayFutures = await ethers.getContractFactory("BCTFuture");
+  const cryptoTodayFutures = (await CryptoTodayFutures.deploy(supply.div(10).toString(), accountList)) as BCTFuture;
 
-  // We get the contract to deploy
-  const Greeter = await ethers.getContractFactory("Greeter");
-  const greeter = await Greeter.deploy("Hello, Hardhat!");
+  await cryptoTodayFutures.deployed();
 
-  await greeter.deployed();
+  // Deploy BCT token contract
+  const CyptoTodayToken = await ethers.getContractFactory("BCT");
+  const cryptoTodayToken = (await CyptoTodayToken.deploy(supply.toString(), cryptoTodayFutures.address)) as BCT;
 
-  console.log("Greeter deployed to:", greeter.address);
+  await cryptoTodayToken.deployed();
+
+  // Deploy VotingEngine contract
+
+  const VotingEngine = await ethers.getContractFactory("VotingEngine");
+  const votingEngine = (await upgrades.deployProxy(VotingEngine, [cryptoTodayToken.address], {
+    initializer: "initialize",
+  })) as VotingEngine;
+
+  await votingEngine.deployed();
+
+  await cryptoTodayToken.mintToEngine(votingEngine.address);
+
+  console.log(votingEngine.address, cryptoTodayFutures.address, cryptoTodayToken.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
 // and properly handle errors.
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
