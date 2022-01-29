@@ -7,6 +7,10 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
+interface IBCTF is IERC20 {
+  function burnFrom(address account, uint256 amount) external;
+}
+
 // TODO: should it be capped?
 contract BCT is ERC20Capped, Ownable, Pausable {
   struct Claim {
@@ -31,13 +35,10 @@ contract BCT is ERC20Capped, Ownable, Pausable {
   uint256 public saleStartedTS;
   bool internal _saleEnded = false;
 
-  IERC20 public immutable bctFuture;
+  IBCTF public immutable bctFuture;
 
   constructor(uint256 cap, address bctFutureAddress) ERC20("Blockchain Crypto Today", "BCT") ERC20Capped(cap) {
-    saleStartedTS = block.timestamp;
-    bctFuture = IERC20(bctFutureAddress);
-
-    _mint(address(this), (3 * cap) / 100);
+    bctFuture = IBCTF(bctFutureAddress);
 
     _pause();
   }
@@ -48,8 +49,9 @@ contract BCT is ERC20Capped, Ownable, Pausable {
 
   function endSale() external onlyOwner {
     _pause();
+    _saleEnded = true;
 
-    uint256 _claimableSupply = totalSupply();
+    uint256 _claimableSupply = (3 * cap()) / 100;
     for (uint256 i = 0; i < _investors.values.length; i++) {
       address investor = _investors.values[i];
       uint256 share = (_claimableSupply * investments[investor]) / totalStake;
@@ -66,8 +68,8 @@ contract BCT is ERC20Capped, Ownable, Pausable {
   //only referals from those who invested are valid, a link of the from ?referer=abcdef
   //is generated once the investment is made (this referal will be rejected by the smart
   //contract if the investment is for example denied)
-  function investFor(address investor, address payable referer) public payable whenNotPaused {
-    require(!_investors.investments[referer].isIn, "refererNotInvested");
+  function invest(address investor, address payable referer) public payable whenNotPaused {
+    require(_investors.investments[referer].isIn || referer == address(0), "refererNotInvested");
     uint256 stake = msg.value;
 
     investments[investor] += stake;
@@ -78,7 +80,7 @@ contract BCT is ERC20Capped, Ownable, Pausable {
       _investors.investments[investor].isIn = true;
     }
 
-    referer.transfer(stake / 20);
+    if (referer != address(0)) referer.transfer(stake / 20);
 
     emit Investment(investor, stake, block.timestamp);
   }
@@ -90,17 +92,18 @@ contract BCT is ERC20Capped, Ownable, Pausable {
 
     _investors.investments[msg.sender].claimed = true;
 
-    transfer(msg.sender, _investors.investments[msg.sender].share);
+    _mint(msg.sender, _investors.investments[msg.sender].share);
   }
 
   function claimFutures(uint256 amount) external {
+    require(_saleEnded, "saleNotDone");
     uint256 currentTS = block.timestamp;
     uint256 diff = (currentTS - saleStartedTS) / 60 / 60 / 24;
-    require(diff > 365, "Allow claiming after one year");
+    require(diff > 365, "notEnoughTimePassed");
 
     address claimer = _msgSender();
     // burn BCTFuture when claiming BCT
-    bctFuture.transferFrom(claimer, address(0), amount);
+    bctFuture.burnFrom(claimer, amount);
     _mint(claimer, amount);
   }
 }

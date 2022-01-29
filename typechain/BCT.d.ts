@@ -33,8 +33,7 @@ interface BCTInterface extends ethers.utils.Interface {
     "decreaseAllowance(address,uint256)": FunctionFragment;
     "endSale()": FunctionFragment;
     "increaseAllowance(address,uint256)": FunctionFragment;
-    "invest()": FunctionFragment;
-    "investFor(address)": FunctionFragment;
+    "invest(address,address)": FunctionFragment;
     "investments(address)": FunctionFragment;
     "mintToEngine(address)": FunctionFragment;
     "name()": FunctionFragment;
@@ -80,8 +79,10 @@ interface BCTInterface extends ethers.utils.Interface {
     functionFragment: "increaseAllowance",
     values: [string, BigNumberish]
   ): string;
-  encodeFunctionData(functionFragment: "invest", values?: undefined): string;
-  encodeFunctionData(functionFragment: "investFor", values: [string]): string;
+  encodeFunctionData(
+    functionFragment: "invest",
+    values: [string, string]
+  ): string;
   encodeFunctionData(functionFragment: "investments", values: [string]): string;
   encodeFunctionData(
     functionFragment: "mintToEngine",
@@ -145,7 +146,6 @@ interface BCTInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "invest", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "investFor", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "investments",
     data: BytesLike
@@ -317,11 +317,8 @@ export class BCT extends BaseContract {
     ): Promise<ContractTransaction>;
 
     invest(
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<ContractTransaction>;
-
-    investFor(
       investor: string,
+      referer: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
@@ -419,11 +416,8 @@ export class BCT extends BaseContract {
   ): Promise<ContractTransaction>;
 
   invest(
-    overrides?: PayableOverrides & { from?: string | Promise<string> }
-  ): Promise<ContractTransaction>;
-
-  investFor(
     investor: string,
+    referer: string,
     overrides?: PayableOverrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
@@ -516,9 +510,11 @@ export class BCT extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    invest(overrides?: CallOverrides): Promise<void>;
-
-    investFor(investor: string, overrides?: CallOverrides): Promise<void>;
+    invest(
+      investor: string,
+      referer: string,
+      overrides?: CallOverrides
+    ): Promise<void>;
 
     investments(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -692,11 +688,8 @@ export class BCT extends BaseContract {
     ): Promise<BigNumber>;
 
     invest(
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<BigNumber>;
-
-    investFor(
       investor: string,
+      referer: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
@@ -798,11 +791,8 @@ export class BCT extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     invest(
-      overrides?: PayableOverrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    investFor(
       investor: string,
+      referer: string,
       overrides?: PayableOverrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 

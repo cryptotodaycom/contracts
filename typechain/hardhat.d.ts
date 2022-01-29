@@ -33,6 +33,10 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ERC20__factory>;
     getContractFactory(
+      name: "ERC20Burnable",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.ERC20Burnable__factory>;
+    getContractFactory(
       name: "ERC20Capped",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.ERC20Capped__factory>;
@@ -60,6 +64,10 @@ declare module "hardhat/types/runtime" {
       name: "BCT",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BCT__factory>;
+    getContractFactory(
+      name: "IBCTF",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.IBCTF__factory>;
     getContractFactory(
       name: "BCTFuture",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -99,6 +107,11 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.ERC20>;
     getContractAt(
+      name: "ERC20Burnable",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.ERC20Burnable>;
+    getContractAt(
       name: "ERC20Capped",
       address: string,
       signer?: ethers.Signer
@@ -133,6 +146,11 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.BCT>;
+    getContractAt(
+      name: "IBCTF",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.IBCTF>;
     getContractAt(
       name: "BCTFuture",
       address: string,
