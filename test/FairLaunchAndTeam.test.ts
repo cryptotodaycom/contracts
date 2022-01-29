@@ -1,15 +1,14 @@
 import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { ethers, upgrades } from "hardhat";
-import { VotingEngine } from "../typechain";
 // eslint-disable-next-line node/no-missing-import
-import { BCT, BCTFuture } from "./../typechain";
+import { BCT, BCTFuture, VotingEngine } from "../typechain";
 
 const address0 = "0x0000000000000000000000000000000000000000";
 
 const supply: BigNumber = ethers.utils.parseUnits("100000000000", 18);
 
-describe("bctToken", async function () {
+describe("testing v1", async function () {
   let user1: any, user2: any, user3: any, user4: any;
   let cryptoTodayFutures: BCTFuture;
   let cryptoTodayToken: BCT;
@@ -41,8 +40,6 @@ describe("bctToken", async function () {
     })) as VotingEngine;
 
     await votingEngine.deployed();
-
-    expect(await votingEngine.bct()).to.equal(cryptoTodayToken.address);
   });
 
   describe("public fair launch", async function () {

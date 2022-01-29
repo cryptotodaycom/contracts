@@ -40,22 +40,31 @@ contract VotingEngine is Initializable, PausableUpgradeable, ReentrancyGuardUpgr
     _pause();
   }
 
-  function withdraw(
+  function togglePause() external onlyOwner {
+    if (paused()) {
+      _unpause();
+    } else {
+      _pause();
+    }
+  }
+
+  function withdrawFor(
     uint256 amount,
     uint256 nonce,
+    address receiver,
     bytes calldata signature
   ) external whenNotPaused nonReentrant {
-    require(verify(owner(), msg.sender, amount, nonce, signature), "Invalid signature");
+    require(verify(owner(), receiver, amount, nonce, signature), "Invalid signature");
 
     // Current nonce has to match this one to avoid double withdrawals
-    require(nonceMap[msg.sender] == nonce, "Invalid nonce");
+    require(nonceMap[receiver] == nonce, "Invalid nonce");
 
-    nonceMap[msg.sender]++;
-    withdrawn[msg.sender] += amount;
+    nonceMap[receiver]++;
+    withdrawn[receiver] += amount;
 
     emit Withdrawn(_msgSender(), amount);
 
-    bct.transfer(msg.sender, amount);
+    bct.transfer(receiver, amount);
   }
 
   function deposit(uint256 amount) external whenNotPaused {

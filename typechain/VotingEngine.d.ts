@@ -34,9 +34,10 @@ interface VotingEngineInterface extends ethers.utils.Interface {
     "recoverSigner(bytes32,bytes)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "resolveVote(uint256,string)": FunctionFragment;
+    "togglePause()": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
     "verify(address,address,uint256,uint256,bytes)": FunctionFragment;
-    "withdraw(uint256,uint256,bytes)": FunctionFragment;
+    "withdrawFor(uint256,uint256,address,bytes)": FunctionFragment;
     "withdrawn(address)": FunctionFragment;
   };
 
@@ -78,6 +79,10 @@ interface VotingEngineInterface extends ethers.utils.Interface {
     values: [BigNumberish, string]
   ): string;
   encodeFunctionData(
+    functionFragment: "togglePause",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [string]
   ): string;
@@ -86,8 +91,8 @@ interface VotingEngineInterface extends ethers.utils.Interface {
     values: [string, string, BigNumberish, BigNumberish, BytesLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "withdraw",
-    values: [BigNumberish, BigNumberish, BytesLike]
+    functionFragment: "withdrawFor",
+    values: [BigNumberish, BigNumberish, string, BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "withdrawn", values: [string]): string;
 
@@ -126,11 +131,18 @@ interface VotingEngineInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(
+    functionFragment: "togglePause",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
     functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "verify", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "withdraw", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "withdrawFor",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "withdrawn", data: BytesLike): Result;
 
   events: {
@@ -276,6 +288,10 @@ export class VotingEngine extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
+    togglePause(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<ContractTransaction>;
+
     transferOwnership(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -290,9 +306,10 @@ export class VotingEngine extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[boolean]>;
 
-    withdraw(
+    withdrawFor(
       amount: BigNumberish,
       nonce: BigNumberish,
+      receiver: string,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -353,6 +370,10 @@ export class VotingEngine extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  togglePause(
+    overrides?: Overrides & { from?: string | Promise<string> }
+  ): Promise<ContractTransaction>;
+
   transferOwnership(
     newOwner: string,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -367,9 +388,10 @@ export class VotingEngine extends BaseContract {
     overrides?: CallOverrides
   ): Promise<boolean>;
 
-  withdraw(
+  withdrawFor(
     amount: BigNumberish,
     nonce: BigNumberish,
+    receiver: string,
     signature: BytesLike,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -425,6 +447,8 @@ export class VotingEngine extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
+    togglePause(overrides?: CallOverrides): Promise<void>;
+
     transferOwnership(
       newOwner: string,
       overrides?: CallOverrides
@@ -439,9 +463,10 @@ export class VotingEngine extends BaseContract {
       overrides?: CallOverrides
     ): Promise<boolean>;
 
-    withdraw(
+    withdrawFor(
       amount: BigNumberish,
       nonce: BigNumberish,
+      receiver: string,
       signature: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
@@ -600,6 +625,10 @@ export class VotingEngine extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
+    togglePause(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
     transferOwnership(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -614,9 +643,10 @@ export class VotingEngine extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
-    withdraw(
+    withdrawFor(
       amount: BigNumberish,
       nonce: BigNumberish,
+      receiver: string,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -684,6 +714,10 @@ export class VotingEngine extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
+    togglePause(
+      overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
     transferOwnership(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -698,9 +732,10 @@ export class VotingEngine extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
-    withdraw(
+    withdrawFor(
       amount: BigNumberish,
       nonce: BigNumberish,
+      receiver: string,
       signature: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
