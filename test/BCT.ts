@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { BigNumber } from "ethers";
-import { ethers } from "hardhat";
+import { ethers, upgrades } from "hardhat";
+import { VotingEngine } from "../typechain";
 // eslint-disable-next-line node/no-missing-import
 import { BCT, BCTFuture } from "./../typechain";
 
@@ -12,6 +13,7 @@ describe("bctToken", async function () {
   let user1: any, user2: any, user3: any, user4: any;
   let cryptoTodayFutures: BCTFuture;
   let cryptoTodayToken: BCT;
+  let votingEngine: VotingEngine;
 
   before(async () => {
     [, user1, user2, user3, user4] = await ethers.getSigners();
@@ -30,12 +32,28 @@ describe("bctToken", async function () {
     cryptoTodayToken = (await CyptoTodayToken.deploy(supply.toString(), cryptoTodayFutures.address)) as BCT;
 
     await cryptoTodayToken.deployed();
+
+    // Deploy VotingEngine contract
+
+    const VotingEngine = await ethers.getContractFactory("VotingEngine");
+    votingEngine = (await upgrades.deployProxy(VotingEngine, [cryptoTodayToken.address], {
+      initializer: "initialize",
+    })) as VotingEngine;
+
+    await votingEngine.deployed();
+
+    expect(await votingEngine.bct()).to.equal(cryptoTodayToken.address);
   });
+
   describe("public fair launch", async function () {
     it("should revert if sale hasn't started", async function () {
       await expect(cryptoTodayToken.connect(user1).invest(user1.address, address0, { value: ethers.utils.parseEther("0.5") })).to.be.revertedWith(
         "Pausable: paused"
       );
+    });
+
+    it("should revert if sale not done", async function () {
+      await expect(cryptoTodayToken.connect(user2).claimShares()).to.be.revertedWith("saleOngoing");
     });
 
     it("team tokens revert if sale hasn't happened", async function () {
@@ -47,6 +65,10 @@ describe("bctToken", async function () {
       await cryptoTodayToken.startSale();
 
       await expect(await cryptoTodayToken.saleStartedTS()).to.not.be.equal(0);
+    });
+
+    it("should revert if sale started", async function () {
+      await expect(cryptoTodayToken.startSale()).to.be.revertedWith("saleAlreadyStarted");
     });
 
     it("should allow investment and emit correct events", async function () {
@@ -113,6 +135,10 @@ describe("bctToken", async function () {
     it("should revert if didn't invest", async function () {
       await expect(cryptoTodayToken.connect(user4).claimShares()).to.be.revertedWith("notInvestor");
     });
+
+    it("should revert if sale ended", async function () {
+      await expect(cryptoTodayToken.startSale()).to.be.revertedWith("saleEnded");
+    });
   });
 
   describe("team token claiming", async function () {
@@ -132,6 +158,18 @@ describe("bctToken", async function () {
 
       await expect(() => cryptoTodayToken.connect(user1).claimFutures(1000)).to.changeTokenBalance(cryptoTodayToken, user1, 1000);
       await expect(() => cryptoTodayToken.connect(user1).claimFutures(1000)).to.changeTokenBalance(cryptoTodayFutures, user1, -1000);
+    });
+  });
+
+  describe("mint to voting engine", async function () {
+    it("mint to engine", async function () {
+      await expect(() => cryptoTodayToken.mintToEngine(votingEngine.address)).to.changeTokenBalance(
+        cryptoTodayToken,
+        votingEngine,
+        supply.mul(87).div(100)
+      );
+
+      // await expect(await cryptoTodayToken.saleStartedTS()).to.be.equal(saleStartedTS.getTime() / 1000);
     });
   });
 });

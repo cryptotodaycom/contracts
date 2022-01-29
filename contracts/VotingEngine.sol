@@ -25,7 +25,7 @@ contract VotingEngine is Initializable, PausableUpgradeable, ReentrancyGuardUpgr
   mapping(address => uint256) public withdrawn;
 
   // Voting logic
-  uint256 internal _voteCounter = 0;
+  uint256 internal _voteCounter;
   mapping(uint256 => string) internal _voteResolutionHash;
 
   function initialize(address bctContractAddress_) external initializer {
@@ -35,6 +35,7 @@ contract VotingEngine is Initializable, PausableUpgradeable, ReentrancyGuardUpgr
     __ReentrancyGuard_init_unchained();
 
     bct = IERC20(bctContractAddress_);
+    _voteCounter = 0;
 
     _pause();
   }

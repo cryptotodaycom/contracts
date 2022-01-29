@@ -61,6 +61,7 @@ contract BCT is ERC20Capped, Ownable, Pausable {
 
   function startSale() external onlyOwner {
     require(!_saleEnded, "saleEnded");
+    require(saleStartedTS == 0, "saleAlreadyStarted");
     saleStartedTS = block.timestamp;
     _unpause();
   }
