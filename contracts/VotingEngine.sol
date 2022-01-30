@@ -8,7 +8,7 @@ import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.
 import "@openzeppelin/contracts-upgradeable/utils/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "../utils/Signature.sol";
+import "./Signature.sol";
 
 contract VotingEngine is Initializable, PausableUpgradeable, ReentrancyGuardUpgradeable, OwnableUpgradeable, Signature {
   event Deposited(address indexed user, uint256 amount);

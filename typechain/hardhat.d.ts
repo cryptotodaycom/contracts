@@ -73,13 +73,13 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.BCTFuture__factory>;
     getContractFactory(
-      name: "VotingEngine",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.VotingEngine__factory>;
-    getContractFactory(
       name: "Signature",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.Signature__factory>;
+    getContractFactory(
+      name: "VotingEngine",
+      signerOrOptions?: ethers.Signer | FactoryOptions
+    ): Promise<Contracts.VotingEngine__factory>;
 
     getContractAt(
       name: "OwnableUpgradeable",
@@ -157,15 +157,15 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.BCTFuture>;
     getContractAt(
-      name: "VotingEngine",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.VotingEngine>;
-    getContractAt(
       name: "Signature",
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.Signature>;
+    getContractAt(
+      name: "VotingEngine",
+      address: string,
+      signer?: ethers.Signer
+    ): Promise<Contracts.VotingEngine>;
 
     // default types
     getContractFactory(

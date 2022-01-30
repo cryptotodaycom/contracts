@@ -4,17 +4,15 @@ import { ethers, upgrades } from "hardhat";
 // eslint-disable-next-line node/no-missing-import
 import { BCTFuture, VotingEngine } from "../typechain";
 
-const address0 = "0x0000000000000000000000000000000000000000";
-
 const supply: BigNumber = ethers.utils.parseUnits("100000000000", 18);
 
 describe("testing v1", async function () {
-  let user1: any, user2: any, user3: any, user4: any, user5: any, user6: any, user7: any, user8: any;
+  let owner: any, user1: any, user2: any, user3: any, user4: any, user5: any, user6: any, user7: any, user8: any;
   let cryptoTodayFutures: BCTFuture;
   let votingEngine: VotingEngine;
 
   before(async () => {
-    [, user1, user2, user3, user4, user5, user6, user7, user8] = await ethers.getSigners();
+    [owner, user1, user2, user3, user4, user5, user6, user7, user8] = await ethers.getSigners();
 
     // Deploy BCT Futures tokens
     const CryptoTodayFutures = await ethers.getContractFactory("BCTFuture");
@@ -45,15 +43,18 @@ describe("testing v1", async function () {
 
   describe("user interactions", async function () {
     it("should revert if paused", async function () {
-      expect(votingEngine.togglePause()).to.be.revertedWith("Abc");
+      await expect(await cryptoTodayFutures.connect(user3).approve(votingEngine.address, 500))
+        .to.emit(cryptoTodayFutures, "Approval")
+        .withArgs(user3.address, votingEngine.address, 500);
+
+      await expect(votingEngine.connect(user3).deposit(500)).to.be.revertedWith("Pausable: paused");
     });
 
     it("should allow owner to unpause", async function () {
-      expect(votingEngine.togglePause());
+      await expect(votingEngine.togglePause());
     });
 
-    it("should allow a user to deposit BCT up to approval amount", async function () {
-      // TODO: fix allowance logic
+    it("should allow a user to deposit BCT up to approval amount, fail above", async function () {
       await expect(await cryptoTodayFutures.connect(user1).approve(votingEngine.address, 1000))
         .to.emit(cryptoTodayFutures, "Approval")
         .withArgs(user1.address, votingEngine.address, 1000);
@@ -64,47 +65,54 @@ describe("testing v1", async function () {
         .withArgs(user1.address, 500);
     });
 
-    it("should allow a user to withdraw funds with valid signature", async function () {
-      await expect(() => votingEngine.connect(user1).deposit(500)).to.changeTokenBalance(cryptoTodayFutures, user1, -500);
-      await expect(await votingEngine.connect(user1).deposit(500))
-        .to.emit(votingEngine, "Deposited")
-        .withArgs(user1.address, 500);
+    it("should allow a user to withdraw funds with valid signature (once)", async function () {
+      const payload = await votingEngine.getEthSignedMessageHash(await votingEngine.getMessageHash(user1.address, 500, 0));
+      const signature = await owner.signMessage(payload);
+
+      console.log(payload, signature);
+      await expect(() => votingEngine.connect(user1).withdrawFor(500, 0, user1.address, signature)).to.changeTokenBalance(
+        cryptoTodayFutures,
+        user1,
+        500
+      );
+      await expect(() => votingEngine.connect(user1).withdrawFor(500, 0, user1.address, signature)).to.be.revertedWith("Invalid signature");
     });
 
     it("should revert withdraw funds with invalid signature", async function () {
-      await expect(() => votingEngine.connect(user1).deposit(500)).to.changeTokenBalance(cryptoTodayFutures, user1, -500);
-      await expect(await votingEngine.connect(user1).deposit(500))
-        .to.emit(votingEngine, "Deposited")
-        .withArgs(user1.address, 500);
+      const payload = ethers.utils.solidityKeccak256(["address", "uint256", "uint256"], [user1.address, 500, 0]);
+      const signature = await owner.signMessage(payload);
+
+      await expect(() => votingEngine.connect(user1).withdrawFor(500, 0, user2.address, signature)).to.be.revertedWith("Invalid nonce");
+      await expect(() => votingEngine.connect(user1).withdrawFor(500, 1, user1.address, signature)).to.be.revertedWith("Invalid nonce");
+      await expect(() => votingEngine.connect(user1).withdrawFor(501, 0, user1.address, signature)).to.be.revertedWith("Invalid signature");
     });
   });
 
   describe("lister interactions", async function () {
     it("should revert if paused", async function () {
-      expect(votingEngine.togglePause()).to.be.revertedWith("Abc");
-    });
+      await votingEngine.togglePause();
+      await expect(cryptoTodayFutures.connect(user3).approve(votingEngine.address, 500))
+        .to.emit(cryptoTodayFutures, "Approval")
+        .withArgs(user3.address, votingEngine.address, 500);
 
-    it("should allow owner to unpause", async function () {
-      expect(votingEngine.togglePause());
+      await expect(votingEngine.connect(user3).proposeVote(500)).to.be.revertedWith("Pausable: paused");
+      await votingEngine.togglePause();
     });
 
     it("should allow lister to start a vote", async function () {
       // TODO: fix allowance logic
-      await expect(await cryptoTodayFutures.connect(user1).approve(votingEngine.address, 1000))
+      await expect(cryptoTodayFutures.connect(user1).approve(votingEngine.address, 1000))
         .to.emit(cryptoTodayFutures, "Approval")
         .withArgs(user1.address, votingEngine.address, 1000);
 
-      await expect(() => votingEngine.connect(user1).deposit(500)).to.changeTokenBalance(cryptoTodayFutures, user1, -500);
-      await expect(await votingEngine.connect(user1).deposit(500))
-        .to.emit(votingEngine, "Deposited")
-        .withArgs(user1.address, 500);
+      await expect(votingEngine.connect(user1).proposeVote(500)).to.emit(votingEngine, "VoteProposed").withArgs(0, 500);
+      await expect(() => votingEngine.connect(user1).proposeVote(500)).to.changeTokenBalance(cryptoTodayFutures, user1, -500);
     });
 
-    it("should allow owner to resolve vote", async function () {
-      await expect(() => votingEngine.connect(user1).deposit(500)).to.changeTokenBalance(cryptoTodayFutures, user1, -500);
-      await expect(await votingEngine.connect(user1).deposit(500))
-        .to.emit(votingEngine, "Deposited")
-        .withArgs(user1.address, 500);
+    it("should allow only owner to resolve vote, and only once", async function () {
+      await expect(votingEngine.connect(owner).resolveVote(0, "abc")).to.emit(votingEngine, "VoteResolved").withArgs(0, "abc");
+      await expect(votingEngine.connect(owner).resolveVote(0, "abc")).to.be.revertedWith("alreadyResolved");
+      await expect(votingEngine.connect(user1).resolveVote(1, "abc")).to.be.revertedWith("Ownable: caller is not the owner");
     });
   });
 });

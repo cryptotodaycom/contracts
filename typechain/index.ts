@@ -16,8 +16,8 @@ export type { IERC165 } from "./IERC165";
 export type { BCT } from "./BCT";
 export type { IBCTF } from "./IBCTF";
 export type { BCTFuture } from "./BCTFuture";
-export type { VotingEngine } from "./VotingEngine";
 export type { Signature } from "./Signature";
+export type { VotingEngine } from "./VotingEngine";
 
 export { OwnableUpgradeable__factory } from "./factories/OwnableUpgradeable__factory";
 export { PausableUpgradeable__factory } from "./factories/PausableUpgradeable__factory";
@@ -34,5 +34,5 @@ export { IERC165__factory } from "./factories/IERC165__factory";
 export { BCT__factory } from "./factories/BCT__factory";
 export { IBCTF__factory } from "./factories/IBCTF__factory";
 export { BCTFuture__factory } from "./factories/BCTFuture__factory";
-export { VotingEngine__factory } from "./factories/VotingEngine__factory";
 export { Signature__factory } from "./factories/Signature__factory";
+export { VotingEngine__factory } from "./factories/VotingEngine__factory";
