@@ -25,9 +25,19 @@ describe("signature", async function () {
 
   it("should provide valid signature", async function () {
     const payload = await signature.getMessageHash(user1.address, 500, 0);
-    const signedMsg = await owner.signMessage(payload);
-    const signedMsgHash = await signature.getEthSignedMessageHash(signedMsg);
+    const payloadBinary = ethers.utils.arrayify(payload);
+    const signedMsg = await owner.signMessage(payloadBinary);
+    const signedMsgBinary = ethers.utils.arrayify(signedMsg);
+    // const signedMsgHash = await signature.getEthSignedMessageHash(signedMsg);
+    console.log("signedMsgBinary", payload.length, payload);
+    console.log("signedMsg", signedMsg.length, signedMsg);
+    console.log("payloadBinary", payloadBinary.length, payloadBinary);
+    console.log("payload", payload.length, payload);
 
-    await expect(await signature.verify(owner.address, user1.address, 500, 0, signedMsgHash)).to.be.true;
+    const ethSignedMessageHash = await signature.getEthSignedMessageHash(payloadBinary);
+    const contractRecoveredSigner = await signature.recoverSigner(ethSignedMessageHash, signedMsgBinary);
+    await expect(ethers.utils.verifyMessage(payloadBinary, signedMsgBinary), owner.address).to.equal(contractRecoveredSigner);
+
+    await expect(await signature.verify(owner.address, user1.address, 500, 0, signedMsgBinary)).to.be.true;
   });
 });
