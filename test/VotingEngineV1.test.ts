@@ -66,8 +66,8 @@ describe("testing v1", async function () {
     });
 
     it("should allow a user to withdraw funds with valid signature (once)", async function () {
-      const payload = await votingEngine.getEthSignedMessageHash(await votingEngine.getMessageHash(user1.address, 500, 0));
-      const signature = await owner.signMessage(payload);
+      const payload = ethers.utils.arrayify(ethers.utils.solidityKeccak256(["address", "uint256", "uint256"], [user1.address, 500, 0]));
+      const signature = ethers.utils.arrayify(await owner.signMessage(payload));
 
       console.log(payload, signature);
       await expect(() => votingEngine.connect(user1).withdrawFor(500, 0, user1.address, signature)).to.changeTokenBalance(
@@ -75,16 +75,17 @@ describe("testing v1", async function () {
         user1,
         500
       );
-      await expect(() => votingEngine.connect(user1).withdrawFor(500, 0, user1.address, signature)).to.be.revertedWith("Invalid signature");
+      // Second attempt should fail as described
+      await expect(votingEngine.connect(user1).withdrawFor(500, 0, user1.address, signature)).to.be.revertedWith("Invalid nonce");
     });
 
     it("should revert withdraw funds with invalid signature", async function () {
-      const payload = ethers.utils.solidityKeccak256(["address", "uint256", "uint256"], [user1.address, 500, 0]);
-      const signature = await owner.signMessage(payload);
+      const payload = ethers.utils.arrayify(ethers.utils.solidityKeccak256(["address", "uint256", "uint256"], [user1.address, 500, 0]));
+      const signature = ethers.utils.arrayify(await owner.signMessage(payload));
 
-      await expect(() => votingEngine.connect(user1).withdrawFor(500, 0, user2.address, signature)).to.be.revertedWith("Invalid nonce");
-      await expect(() => votingEngine.connect(user1).withdrawFor(500, 1, user1.address, signature)).to.be.revertedWith("Invalid nonce");
-      await expect(() => votingEngine.connect(user1).withdrawFor(501, 0, user1.address, signature)).to.be.revertedWith("Invalid signature");
+      await expect(votingEngine.connect(user1).withdrawFor(500, 0, user2.address, signature)).to.be.revertedWith("Invalid signature");
+      await expect(votingEngine.connect(user1).withdrawFor(500, 2, user1.address, signature)).to.be.revertedWith("Invalid signature");
+      await expect(votingEngine.connect(user1).withdrawFor(501, 0, user1.address, signature)).to.be.revertedWith("Invalid signature");
     });
   });
 
@@ -110,9 +111,13 @@ describe("testing v1", async function () {
     });
 
     it("should allow only owner to resolve vote, and only once", async function () {
-      await expect(votingEngine.connect(owner).resolveVote(0, "abc")).to.emit(votingEngine, "VoteResolved").withArgs(0, "abc");
-      await expect(votingEngine.connect(owner).resolveVote(0, "abc")).to.be.revertedWith("alreadyResolved");
-      await expect(votingEngine.connect(user1).resolveVote(1, "abc")).to.be.revertedWith("Ownable: caller is not the owner");
+      await expect(votingEngine.connect(owner).resolveVote(0, "hash1")).to.emit(votingEngine, "VoteResolved").withArgs(0, "hash1");
+      await expect(votingEngine.connect(owner).resolveVote(0, "hash2")).to.be.revertedWith("alreadyResolved");
+      await expect(votingEngine.connect(user1).resolveVote(1, "hash3")).to.be.revertedWith("Ownable: caller is not the owner");
+    });
+
+    it("should return correct ipfs hash", async function () {
+      await expect(await votingEngine.getVoteState(0)).to.equal("hash1");
     });
   });
 });
