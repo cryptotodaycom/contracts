@@ -149,12 +149,13 @@ describe("testing v1", async function () {
       await ethers.provider.send("evm_increaseTime", [60 * 60 * 24 * 366]);
       await ethers.provider.send("evm_mine", []);
 
-      expect(await cryptoTodayFutures.connect(user1).approve(cryptoTodayToken.address, supply.div(300)))
+      expect(await cryptoTodayFutures.connect(user1).approve(cryptoTodayToken.address, 2000))
         .to.emit(cryptoTodayFutures, "Approval")
-        .withArgs(user1.address, cryptoTodayToken.address, supply.div(300));
+        .withArgs(user1.address, cryptoTodayToken.address, 2000);
 
       await expect(() => cryptoTodayToken.connect(user1).claimFutures(1000)).to.changeTokenBalance(cryptoTodayToken, user1, 1000);
       await expect(() => cryptoTodayToken.connect(user1).claimFutures(1000)).to.changeTokenBalance(cryptoTodayFutures, user1, -1000);
+      await expect(cryptoTodayToken.connect(user1).claimFutures(1000)).to.be.revertedWith("ERC20: burn amount exceeds allowance");
     });
   });
 

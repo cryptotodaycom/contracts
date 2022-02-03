@@ -25,9 +25,30 @@ describe("signature", async function () {
 
   it("should provide valid signature", async function () {
     const payload = await signature.getMessageHash(user1.address, 500, 0);
-    const signedMsg = await owner.signMessage(payload);
-    const signedMsgHash = await signature.getEthSignedMessageHash(signedMsg);
+    const payloadBinary = ethers.utils.arrayify(payload);
+    const signedMsg = await owner.signMessage(payloadBinary);
+    const signedMsgBinary = ethers.utils.arrayify(signedMsg);
+    const ethSignedMessageHash = await signature.getEthSignedMessageHash(payloadBinary);
 
-    await expect(await signature.verify(owner.address, user1.address, 500, 0, signedMsgHash)).to.be.true;
+    await expect(await await signature.recoverSigner(ethSignedMessageHash, signedMsgBinary)).to.equal(
+      ethers.utils.verifyMessage(payloadBinary, signedMsgBinary)
+    );
+    await expect(await signature.verify(owner.address, user1.address, 500, 0, signedMsgBinary)).to.be.true;
+  });
+
+  it("should reject invalid signature", async function () {
+    const payload = await signature.getMessageHash(user1.address, 501, 0);
+    const payloadBinary = ethers.utils.arrayify(payload);
+    const signedMsg = await owner.signMessage(payloadBinary);
+    const signedMsgBinary = ethers.utils.arrayify(signedMsg);
+
+    await expect(await signature.verify(owner.address, user1.address, 500, 0, signedMsgBinary)).to.be.false;
+  });
+
+  it("should reject signature of wrong length", async function () {
+    const payload = await signature.getMessageHash(user1.address, 501, 0);
+    const payloadBinary = ethers.utils.arrayify(payload);
+
+    await expect(signature.verify(owner.address, user1.address, 500, 0, payloadBinary)).to.be.revertedWith("Invalid signature length");
   });
 });
