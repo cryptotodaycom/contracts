@@ -2,10 +2,10 @@
 
 pragma solidity 0.8.11;
 
-interface IBCT {
+interface ILIST {
   //User facing function to invest in the fair launch
   function invest(address investor) external payable;
 
-  //Function to exchange futures BCT for real BCT
+  //Function to exchange futures LIST for real LIST
   function claim(uint256 amount) external;
 }

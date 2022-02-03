@@ -7,12 +7,12 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 
-interface IBCTF is IERC20 {
+interface ILISTF is IERC20 {
   function burnFrom(address account, uint256 amount) external;
 }
 
 // TODO: should it be capped?
-contract BCT is ERC20Capped, Ownable, Pausable {
+contract LIST is ERC20Capped, Ownable, Pausable {
   struct Claim {
     bool isIn;
     bool claimed;
@@ -35,10 +35,10 @@ contract BCT is ERC20Capped, Ownable, Pausable {
   uint256 public saleStartedTS;
   bool internal _saleEnded = false;
 
-  IBCTF public immutable bctFuture;
+  ILISTF public immutable bctFuture;
 
-  constructor(uint256 cap, address bctFutureAddress) ERC20("Blockchain Crypto Today", "BCT") ERC20Capped(cap) {
-    bctFuture = IBCTF(bctFutureAddress);
+  constructor(uint256 cap, address bctFutureAddress) ERC20("CryptoTodayCom", "$LIST") ERC20Capped(cap) {
+    bctFuture = ILISTF(bctFutureAddress);
 
     _pause();
   }
@@ -103,7 +103,7 @@ contract BCT is ERC20Capped, Ownable, Pausable {
     require(diff > 365, "notEnoughTimePassed");
 
     address claimer = _msgSender();
-    // burn BCTFuture when claiming BCT
+    // burn LISTFuture when claiming LIST
     bctFuture.burnFrom(claimer, amount);
     _mint(claimer, amount);
   }

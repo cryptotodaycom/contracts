@@ -2,20 +2,20 @@ import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { ethers, upgrades } from "hardhat";
 // eslint-disable-next-line node/no-missing-import
-import { BCTFuture, VotingEngine } from "../typechain";
+import { LISTFuture, VotingEngine } from "../typechain";
 
 const supply: BigNumber = ethers.utils.parseUnits("100000000000", 18);
 
 describe("testing v1", async function () {
   let owner: any, user1: any, user2: any, user3: any, user4: any, user5: any, user6: any, user7: any, user8: any;
-  let cryptoTodayFutures: BCTFuture;
+  let cryptoTodayFutures: LISTFuture;
   let votingEngine: VotingEngine;
 
   before(async () => {
     [owner, user1, user2, user3, user4, user5, user6, user7, user8] = await ethers.getSigners();
 
-    // Deploy BCT Futures tokens
-    const CryptoTodayFutures = await ethers.getContractFactory("BCTFuture");
+    // Deploy LIST Futures tokens
+    const CryptoTodayFutures = await ethers.getContractFactory("LISTFuture");
     cryptoTodayFutures = (await CryptoTodayFutures.deploy(supply.toString(), [
       { account: user1.address, amount: supply.div(8).toString() },
       { account: user2.address, amount: supply.div(8).toString() },
@@ -25,7 +25,7 @@ describe("testing v1", async function () {
       { account: user6.address, amount: supply.div(8).toString() },
       { account: user7.address, amount: supply.div(8).toString() },
       { account: user8.address, amount: supply.div(8).toString() },
-    ])) as BCTFuture;
+    ])) as LISTFuture;
 
     await cryptoTodayFutures.deployed();
 
@@ -54,7 +54,7 @@ describe("testing v1", async function () {
       await expect(votingEngine.togglePause());
     });
 
-    it("should allow a user to deposit BCT up to approval amount, fail above", async function () {
+    it("should allow a user to deposit LIST up to approval amount, fail above", async function () {
       await expect(await cryptoTodayFutures.connect(user1).approve(votingEngine.address, 1000))
         .to.emit(cryptoTodayFutures, "Approval")
         .withArgs(user1.address, votingEngine.address, 1000);

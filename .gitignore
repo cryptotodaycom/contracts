@@ -9,4 +9,4 @@ artifacts
 
 #MacOS files
 **/.DS_Store
-typechain
+typechain/**

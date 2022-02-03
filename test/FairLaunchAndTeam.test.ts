@@ -2,7 +2,7 @@ import { expect } from "chai";
 import { BigNumber } from "ethers";
 import { ethers, upgrades } from "hardhat";
 // eslint-disable-next-line node/no-missing-import
-import { BCT, BCTFuture, VotingEngine } from "../typechain";
+import { LIST, LISTFuture, VotingEngine } from "../typechain";
 
 const address0 = "0x0000000000000000000000000000000000000000";
 
@@ -10,25 +10,25 @@ const supply: BigNumber = ethers.utils.parseUnits("100000000000", 18);
 
 describe("testing v1", async function () {
   let user1: any, user2: any, user3: any, user4: any;
-  let cryptoTodayFutures: BCTFuture;
-  let cryptoTodayToken: BCT;
+  let cryptoTodayFutures: LISTFuture;
+  let cryptoTodayToken: LIST;
   let votingEngine: VotingEngine;
 
   before(async () => {
     [, user1, user2, user3, user4] = await ethers.getSigners();
 
-    // Deploy BCT Futures tokens
-    const CryptoTodayFutures = await ethers.getContractFactory("BCTFuture");
+    // Deploy LIST Futures tokens
+    const CryptoTodayFutures = await ethers.getContractFactory("LISTFuture");
     cryptoTodayFutures = (await CryptoTodayFutures.deploy(supply.div(10).toString(), [
       { account: user1.address, amount: supply.div(30).toString() },
       { account: user2.address, amount: supply.mul(2).div(30).toString() },
-    ])) as BCTFuture;
+    ])) as LISTFuture;
 
     await cryptoTodayFutures.deployed();
 
-    // Deploy BCT token contract
-    const CyptoTodayToken = await ethers.getContractFactory("BCT");
-    cryptoTodayToken = (await CyptoTodayToken.deploy(supply.toString(), cryptoTodayFutures.address)) as BCT;
+    // Deploy LIST token contract
+    const CyptoTodayToken = await ethers.getContractFactory("LIST");
+    cryptoTodayToken = (await CyptoTodayToken.deploy(supply.toString(), cryptoTodayFutures.address)) as LIST;
 
     await cryptoTodayToken.deployed();
 

@@ -6,7 +6,8 @@
     "compile": "hardhat compile",
     "coverage": "yarn build && hardhat coverage --temp artifacts",
     "test": "hardhat test",
-    "size": "hardhat size-contracts"
+    "size": "hardhat size-contracts",
+    "deploy": "hardhat run scripts/deploy.ts"
   },
   "dependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.4",

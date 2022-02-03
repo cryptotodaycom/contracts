@@ -10,7 +10,7 @@ describe("signature", async function () {
   before(async () => {
     [owner, user1] = await ethers.getSigners();
 
-    // Deploy BCT Futures tokens
+    // Deploy LIST Futures tokens
     const Signature = await ethers.getContractFactory("Signature");
     signature = (await Signature.deploy()) as Signature;
 

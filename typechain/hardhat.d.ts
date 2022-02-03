@@ -61,17 +61,17 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC165__factory>;
     getContractFactory(
-      name: "BCT",
+      name: "ILISTF",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.BCT__factory>;
+    ): Promise<Contracts.ILISTF__factory>;
     getContractFactory(
-      name: "IBCTF",
+      name: "LIST",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IBCTF__factory>;
+    ): Promise<Contracts.LIST__factory>;
     getContractFactory(
-      name: "BCTFuture",
+      name: "LISTFuture",
       signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.BCTFuture__factory>;
+    ): Promise<Contracts.LISTFuture__factory>;
     getContractFactory(
       name: "Signature",
       signerOrOptions?: ethers.Signer | FactoryOptions
@@ -142,20 +142,20 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IERC165>;
     getContractAt(
-      name: "BCT",
+      name: "ILISTF",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.BCT>;
+    ): Promise<Contracts.ILISTF>;
     getContractAt(
-      name: "IBCTF",
+      name: "LIST",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.IBCTF>;
+    ): Promise<Contracts.LIST>;
     getContractAt(
-      name: "BCTFuture",
+      name: "LISTFuture",
       address: string,
       signer?: ethers.Signer
-    ): Promise<Contracts.BCTFuture>;
+    ): Promise<Contracts.LISTFuture>;
     getContractAt(
       name: "Signature",
       address: string,
