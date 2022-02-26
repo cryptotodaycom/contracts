@@ -2,10 +2,10 @@ output: mythx.json
 format: json
 
 analyze:
-  solc: 0.8.11
+  solc: 0.8.12
   create-group: true
   group-name: CryptoToday
   remappings:
     - "@openzeppelin/=node_modules/@openzeppelin/"
     - "@nomiclabs=node_modules/@nomiclabs/"
-  blacklist: 101
+  blacklist: 101,

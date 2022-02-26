@@ -1,6 +1,6 @@
 //SPDX-License-Identifier: WTFPL
 
-pragma solidity 0.8.11;
+pragma solidity 0.8.12;
 
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
