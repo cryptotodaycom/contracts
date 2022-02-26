@@ -57,6 +57,8 @@ contract LIST is ERC20Capped, Ownable, Pausable {
       uint256 share = (_claimableSupply * investments[investor]) / totalStake;
       _investors.investments[investor].share = share;
     }
+
+    payable(msg.sender).transfer(address(this).balance);
   }
 
   function startSale() external onlyOwner {

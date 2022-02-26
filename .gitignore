@@ -10,3 +10,5 @@ artifacts
 #MacOS files
 **/.DS_Store
 typechain/**
+
+mythx.json
