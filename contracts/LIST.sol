@@ -11,7 +11,6 @@ interface ILISTF is IERC20 {
   function burnFrom(address account, uint256 amount) external;
 }
 
-// TODO: should it be capped?
 contract LIST is ERC20Capped, Ownable, Pausable {
   struct Claim {
     bool isIn;
