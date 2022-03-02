@@ -42,5 +42,12 @@ describe("testing trooper nft minting", async function () {
         .withArgs(user1.address, address0, user1.address, 0, 1);
       await expect(trooperNft.connect(user1).claimTrooper(signature)).to.be.revertedWith("Already claimed");
     });
+
+    it("should reject signature of wrong length", async function () {
+      const payload = ethers.utils.arrayify(ethers.utils.solidityKeccak256(["address"], [user1.address]));
+      const payloadBinary = ethers.utils.arrayify(payload);
+
+      await expect(trooperNft.verify(owner.address, user1.address, payloadBinary)).to.be.revertedWith("Invalid signature length");
+    });
   });
 });

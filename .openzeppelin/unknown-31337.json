@@ -7,7 +7,7 @@
       "hash": "0x55a14b0cb083306362d83a8f097090cc9861c3d393fe8ac1974cf023a3d5d324",
       "type": 0,
       "accessList": null,
-      "blockHash": "0x47b009a97fd4049bbf35056bd192342c972133917f22f3b065155192288541a9",
+      "blockHash": "0x47f3a138c5deee86dd0a0ba3fb2ca49b0bd7007755e3ac9f40c1c5c83f6df8b9",
       "blockNumber": 4,
       "transactionIndex": 0,
       "confirmations": 1,
@@ -47,19 +47,19 @@
     },
     {
       "address": "0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9",
-      "txHash": "0xf165d8ecb703511f1e2a74d096bee5cb1ecd686ebd707322f35dff4482d8aaf2",
+      "txHash": "0xe6e5d2b7fa50c5380d05dd1853070fd531ada17b21f43e14d3f2200be3337892",
       "kind": "transparent"
     },
     {
       "address": "0x9A676e781A523b5d0C0e43731313A708CB607508",
-      "txHash": "0xc46705eeeba71defa54ea074abab436b1382c2a4bfb78eaff98641adb12928c2",
+      "txHash": "0x7fb008a012dcd848c43859c3b9625c53199f421f6b57fa98e734d124c8cfcd0e",
       "kind": "transparent"
     }
   ],
   "impls": {
-    "43aea3bcf8eb94391aff5cc07921db03feb9451243144a9c9cab1ac4f38925a5": {
+    "3738fc5fe199cc77b11b636c682eea6876fcf72709fb85ce8c72253d212144c5": {
       "address": "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
-      "txHash": "0x1165835f5de3f80b6dc4a04b3b83d39a1940b6db6d714b6f806665729b9f9e07",
+      "txHash": "0x546eca5151f56acd37b9d11a9945b5a01fc892fda85d69e96602c088e7161b88",
       "layout": {
         "storage": [
           {
@@ -118,33 +118,33 @@
           },
           {
             "contract": "VotingEngine",
-            "label": "bct",
+            "label": "list",
             "type": "t_contract(IERC20)3066",
-            "src": "contracts/VotingEngine.sol:25"
+            "src": "contracts/VotingEngine.sol:29"
           },
           {
             "contract": "VotingEngine",
             "label": "nonceMap",
             "type": "t_mapping(t_address,t_uint256)",
-            "src": "contracts/VotingEngine.sol:28"
+            "src": "contracts/VotingEngine.sol:32"
           },
           {
             "contract": "VotingEngine",
             "label": "withdrawn",
             "type": "t_mapping(t_address,t_uint256)",
-            "src": "contracts/VotingEngine.sol:29"
+            "src": "contracts/VotingEngine.sol:34"
           },
           {
             "contract": "VotingEngine",
             "label": "_voteCounter",
             "type": "t_uint256",
-            "src": "contracts/VotingEngine.sol:32"
+            "src": "contracts/VotingEngine.sol:37"
           },
           {
             "contract": "VotingEngine",
             "label": "_voteResolutionHash",
             "type": "t_mapping(t_uint256,t_string_storage)",
-            "src": "contracts/VotingEngine.sol:33"
+            "src": "contracts/VotingEngine.sol:39"
           }
         ],
         "types": {

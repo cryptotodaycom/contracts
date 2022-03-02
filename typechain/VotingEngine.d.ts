@@ -21,12 +21,12 @@ import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 
 interface VotingEngineInterface extends ethers.utils.Interface {
   functions: {
-    "bct()": FunctionFragment;
     "deposit(uint256)": FunctionFragment;
     "getEthSignedMessageHash(bytes32)": FunctionFragment;
     "getMessageHash(address,uint256,uint256)": FunctionFragment;
     "getVoteState(uint256)": FunctionFragment;
     "initialize(address)": FunctionFragment;
+    "list()": FunctionFragment;
     "nonceMap(address)": FunctionFragment;
     "owner()": FunctionFragment;
     "paused()": FunctionFragment;
@@ -41,7 +41,6 @@ interface VotingEngineInterface extends ethers.utils.Interface {
     "withdrawn(address)": FunctionFragment;
   };
 
-  encodeFunctionData(functionFragment: "bct", values?: undefined): string;
   encodeFunctionData(
     functionFragment: "deposit",
     values: [BigNumberish]
@@ -59,6 +58,7 @@ interface VotingEngineInterface extends ethers.utils.Interface {
     values: [BigNumberish]
   ): string;
   encodeFunctionData(functionFragment: "initialize", values: [string]): string;
+  encodeFunctionData(functionFragment: "list", values?: undefined): string;
   encodeFunctionData(functionFragment: "nonceMap", values: [string]): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(functionFragment: "paused", values?: undefined): string;
@@ -96,7 +96,6 @@ interface VotingEngineInterface extends ethers.utils.Interface {
   ): string;
   encodeFunctionData(functionFragment: "withdrawn", values: [string]): string;
 
-  decodeFunctionResult(functionFragment: "bct", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getEthSignedMessageHash",
@@ -111,6 +110,7 @@ interface VotingEngineInterface extends ethers.utils.Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "initialize", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "list", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "nonceMap", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
@@ -232,8 +232,6 @@ export class VotingEngine extends BaseContract {
   interface: VotingEngineInterface;
 
   functions: {
-    bct(overrides?: CallOverrides): Promise<[string]>;
-
     deposit(
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -257,9 +255,11 @@ export class VotingEngine extends BaseContract {
     ): Promise<[string] & { ipfs: string }>;
 
     initialize(
-      bctContractAddress_: string,
+      listContractAddress_: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    list(overrides?: CallOverrides): Promise<[string]>;
 
     nonceMap(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
 
@@ -317,8 +317,6 @@ export class VotingEngine extends BaseContract {
     withdrawn(arg0: string, overrides?: CallOverrides): Promise<[BigNumber]>;
   };
 
-  bct(overrides?: CallOverrides): Promise<string>;
-
   deposit(
     amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
@@ -339,9 +337,11 @@ export class VotingEngine extends BaseContract {
   getVoteState(id: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
   initialize(
-    bctContractAddress_: string,
+    listContractAddress_: string,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
+
+  list(overrides?: CallOverrides): Promise<string>;
 
   nonceMap(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -399,8 +399,6 @@ export class VotingEngine extends BaseContract {
   withdrawn(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
   callStatic: {
-    bct(overrides?: CallOverrides): Promise<string>;
-
     deposit(amount: BigNumberish, overrides?: CallOverrides): Promise<void>;
 
     getEthSignedMessageHash(
@@ -418,9 +416,11 @@ export class VotingEngine extends BaseContract {
     getVoteState(id: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
     initialize(
-      bctContractAddress_: string,
+      listContractAddress_: string,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    list(overrides?: CallOverrides): Promise<string>;
 
     nonceMap(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -569,8 +569,6 @@ export class VotingEngine extends BaseContract {
   };
 
   estimateGas: {
-    bct(overrides?: CallOverrides): Promise<BigNumber>;
-
     deposit(
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -594,9 +592,11 @@ export class VotingEngine extends BaseContract {
     ): Promise<BigNumber>;
 
     initialize(
-      bctContractAddress_: string,
+      listContractAddress_: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
+
+    list(overrides?: CallOverrides): Promise<BigNumber>;
 
     nonceMap(arg0: string, overrides?: CallOverrides): Promise<BigNumber>;
 
@@ -655,8 +655,6 @@ export class VotingEngine extends BaseContract {
   };
 
   populateTransaction: {
-    bct(overrides?: CallOverrides): Promise<PopulatedTransaction>;
-
     deposit(
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
@@ -680,9 +678,11 @@ export class VotingEngine extends BaseContract {
     ): Promise<PopulatedTransaction>;
 
     initialize(
-      bctContractAddress_: string,
+      listContractAddress_: string,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
+
+    list(overrides?: CallOverrides): Promise<PopulatedTransaction>;
 
     nonceMap(
       arg0: string,

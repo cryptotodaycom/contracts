@@ -38,7 +38,7 @@ describe("testing v1", async function () {
 
     await votingEngine.deployed();
 
-    await expect(await votingEngine.bct()).to.equal(cryptoTodayFutures.address);
+    await expect(await votingEngine.list()).to.equal(cryptoTodayFutures.address);
   });
 
   describe("user interactions", async function () {
