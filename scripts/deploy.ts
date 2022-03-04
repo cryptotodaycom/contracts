@@ -7,6 +7,8 @@ import { LIST, LISTFuture, VotingEngine } from "../typechain";
 const { ethers } = require("hardhat");
 
 const supply: BigNumber = ethers.utils.parseUnits("100000000000", 18);
+
+// List of team accounts that will receive 10% of the total supply in LISTFuture tokens, these are not the final account addresses
 const accountList = [
   { account: "0xA4DA12887866f435b15e41f8e177491A45Cd544C", amount: supply.div(30).toString() },
   { account: "0xA4f4b810E910bE0B4719DB1f319BE8A534b6921c", amount: supply.mul(2).div(30).toString() },
@@ -15,6 +17,7 @@ const accountList = [
 async function main() {
   // Deploy LIST Futures tokens
   const CryptoTodayFutures = await ethers.getContractFactory("LISTFuture");
+  // Notice the supply of the futures is 10% of the total supply, and the account list from above is used
   const cryptoTodayFutures = (await CryptoTodayFutures.deploy(supply.div(10).toString(), accountList)) as LISTFuture;
 
   await cryptoTodayFutures.deployed();
@@ -23,6 +26,7 @@ async function main() {
 
   // Deploy LIST token contract
   const CyptoTodayToken = await ethers.getContractFactory("LIST");
+  // Notice the full supply is being used and the futures contract is linked
   const cryptoTodayToken = (await CyptoTodayToken.deploy(supply.toString(), cryptoTodayFutures.address)) as LIST;
 
   await cryptoTodayToken.deployed();
@@ -32,6 +36,7 @@ async function main() {
   // Deploy VotingEngine contract
 
   const VotingEngine = await ethers.getContractFactory("VotingEngine");
+  // Notice the proper $LIST token is linked
   const votingEngine = (await upgrades.deployProxy(VotingEngine, [cryptoTodayToken.address], {
     initializer: "initialize",
     timeout: 0,
@@ -41,6 +46,7 @@ async function main() {
 
   console.log("votingEngine", votingEngine.address);
 
+  // Mint 87% of the tokens to the engine (10% were minted earlier as LISTFuture, and 3% are minted at the end of the fair launch, tokens from the launch are vested offchain)
   await cryptoTodayToken.mintToEngine(votingEngine.address);
 }
 
