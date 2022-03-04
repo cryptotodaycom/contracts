@@ -22,8 +22,6 @@ import type { TypedEventFilter, TypedEvent, TypedListener } from "./common";
 interface VotingEngineInterface extends ethers.utils.Interface {
   functions: {
     "deposit(uint256)": FunctionFragment;
-    "getEthSignedMessageHash(bytes32)": FunctionFragment;
-    "getMessageHash(address,uint256,uint256)": FunctionFragment;
     "getVoteState(uint256)": FunctionFragment;
     "initialize(address)": FunctionFragment;
     "list()": FunctionFragment;
@@ -31,12 +29,10 @@ interface VotingEngineInterface extends ethers.utils.Interface {
     "owner()": FunctionFragment;
     "paused()": FunctionFragment;
     "proposeVote(uint256)": FunctionFragment;
-    "recoverSigner(bytes32,bytes)": FunctionFragment;
     "renounceOwnership()": FunctionFragment;
     "resolveVote(uint256,string)": FunctionFragment;
     "togglePause()": FunctionFragment;
     "transferOwnership(address)": FunctionFragment;
-    "verify(address,address,uint256,uint256,bytes)": FunctionFragment;
     "withdrawFor(uint256,uint256,address,bytes)": FunctionFragment;
     "withdrawn(address)": FunctionFragment;
   };
@@ -44,14 +40,6 @@ interface VotingEngineInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "deposit",
     values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getEthSignedMessageHash",
-    values: [BytesLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "getMessageHash",
-    values: [string, BigNumberish, BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "getVoteState",
@@ -65,10 +53,6 @@ interface VotingEngineInterface extends ethers.utils.Interface {
   encodeFunctionData(
     functionFragment: "proposeVote",
     values: [BigNumberish]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "recoverSigner",
-    values: [BytesLike, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "renounceOwnership",
@@ -87,24 +71,12 @@ interface VotingEngineInterface extends ethers.utils.Interface {
     values: [string]
   ): string;
   encodeFunctionData(
-    functionFragment: "verify",
-    values: [string, string, BigNumberish, BigNumberish, BytesLike]
-  ): string;
-  encodeFunctionData(
     functionFragment: "withdrawFor",
     values: [BigNumberish, BigNumberish, string, BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "withdrawn", values: [string]): string;
 
   decodeFunctionResult(functionFragment: "deposit", data: BytesLike): Result;
-  decodeFunctionResult(
-    functionFragment: "getEthSignedMessageHash",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "getMessageHash",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(
     functionFragment: "getVoteState",
     data: BytesLike
@@ -116,10 +88,6 @@ interface VotingEngineInterface extends ethers.utils.Interface {
   decodeFunctionResult(functionFragment: "paused", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "proposeVote",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "recoverSigner",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -138,7 +106,6 @@ interface VotingEngineInterface extends ethers.utils.Interface {
     functionFragment: "transferOwnership",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "verify", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "withdrawFor",
     data: BytesLike
@@ -237,18 +204,6 @@ export class VotingEngine extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    getEthSignedMessageHash(
-      messageHash: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
-    getMessageHash(
-      to: string,
-      amount: BigNumberish,
-      nonce: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
     getVoteState(
       id: BigNumberish,
       overrides?: CallOverrides
@@ -272,12 +227,6 @@ export class VotingEngine extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    recoverSigner(
-      ethSignedMessageHash: BytesLike,
-      signature: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[string]>;
-
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
@@ -297,15 +246,6 @@ export class VotingEngine extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
 
-    verify(
-      signer: string,
-      to: string,
-      amount: BigNumberish,
-      nonce: BigNumberish,
-      signature: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<[boolean]>;
-
     withdrawFor(
       amount: BigNumberish,
       nonce: BigNumberish,
@@ -321,18 +261,6 @@ export class VotingEngine extends BaseContract {
     amount: BigNumberish,
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
-
-  getEthSignedMessageHash(
-    messageHash: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
-  getMessageHash(
-    to: string,
-    amount: BigNumberish,
-    nonce: BigNumberish,
-    overrides?: CallOverrides
-  ): Promise<string>;
 
   getVoteState(id: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
@@ -354,12 +282,6 @@ export class VotingEngine extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  recoverSigner(
-    ethSignedMessageHash: BytesLike,
-    signature: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<string>;
-
   renounceOwnership(
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
@@ -379,15 +301,6 @@ export class VotingEngine extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
-  verify(
-    signer: string,
-    to: string,
-    amount: BigNumberish,
-    nonce: BigNumberish,
-    signature: BytesLike,
-    overrides?: CallOverrides
-  ): Promise<boolean>;
-
   withdrawFor(
     amount: BigNumberish,
     nonce: BigNumberish,
@@ -400,18 +313,6 @@ export class VotingEngine extends BaseContract {
 
   callStatic: {
     deposit(amount: BigNumberish, overrides?: CallOverrides): Promise<void>;
-
-    getEthSignedMessageHash(
-      messageHash: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
-    getMessageHash(
-      to: string,
-      amount: BigNumberish,
-      nonce: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<string>;
 
     getVoteState(id: BigNumberish, overrides?: CallOverrides): Promise<string>;
 
@@ -433,12 +334,6 @@ export class VotingEngine extends BaseContract {
       overrides?: CallOverrides
     ): Promise<void>;
 
-    recoverSigner(
-      ethSignedMessageHash: BytesLike,
-      signature: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<string>;
-
     renounceOwnership(overrides?: CallOverrides): Promise<void>;
 
     resolveVote(
@@ -453,15 +348,6 @@ export class VotingEngine extends BaseContract {
       newOwner: string,
       overrides?: CallOverrides
     ): Promise<void>;
-
-    verify(
-      signer: string,
-      to: string,
-      amount: BigNumberish,
-      nonce: BigNumberish,
-      signature: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<boolean>;
 
     withdrawFor(
       amount: BigNumberish,
@@ -574,18 +460,6 @@ export class VotingEngine extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    getEthSignedMessageHash(
-      messageHash: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
-    getMessageHash(
-      to: string,
-      amount: BigNumberish,
-      nonce: BigNumberish,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     getVoteState(
       id: BigNumberish,
       overrides?: CallOverrides
@@ -609,12 +483,6 @@ export class VotingEngine extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    recoverSigner(
-      ethSignedMessageHash: BytesLike,
-      signature: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
@@ -634,15 +502,6 @@ export class VotingEngine extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<BigNumber>;
 
-    verify(
-      signer: string,
-      to: string,
-      amount: BigNumberish,
-      nonce: BigNumberish,
-      signature: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<BigNumber>;
-
     withdrawFor(
       amount: BigNumberish,
       nonce: BigNumberish,
@@ -658,18 +517,6 @@ export class VotingEngine extends BaseContract {
     deposit(
       amount: BigNumberish,
       overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    getEthSignedMessageHash(
-      messageHash: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
-    getMessageHash(
-      to: string,
-      amount: BigNumberish,
-      nonce: BigNumberish,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     getVoteState(
@@ -698,12 +545,6 @@ export class VotingEngine extends BaseContract {
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
 
-    recoverSigner(
-      ethSignedMessageHash: BytesLike,
-      signature: BytesLike,
-      overrides?: CallOverrides
-    ): Promise<PopulatedTransaction>;
-
     renounceOwnership(
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<PopulatedTransaction>;
@@ -721,15 +562,6 @@ export class VotingEngine extends BaseContract {
     transferOwnership(
       newOwner: string,
       overrides?: Overrides & { from?: string | Promise<string> }
-    ): Promise<PopulatedTransaction>;
-
-    verify(
-      signer: string,
-      to: string,
-      amount: BigNumberish,
-      nonce: BigNumberish,
-      signature: BytesLike,
-      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
     withdrawFor(

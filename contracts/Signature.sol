@@ -2,16 +2,24 @@
 
 pragma solidity 0.8.12;
 
+/// @title Utility signature contract
+/// @author Noah Jelich
+/// @notice Used by VotingEngine and Signature to validate signatures provided by our owner wallet
+/// @dev The unused verify and getMessageHash function will be removed when compiling contracts via optimizer dead code
 contract Signature {
   function getMessageHash(
     address to,
     uint256 amount,
     uint256 nonce
-  ) public pure returns (bytes32) {
+  ) internal pure returns (bytes32) {
     return keccak256(abi.encodePacked(to, amount, nonce));
   }
 
-  function getEthSignedMessageHash(bytes32 messageHash) public pure returns (bytes32) {
+  function getMessageHashNFT(address to) internal pure returns (bytes32) {
+    return keccak256(abi.encodePacked(to));
+  }
+
+  function getEthSignedMessageHash(bytes32 messageHash) internal pure returns (bytes32) {
     // Signature is produced by signing a keccak256 hash with the following format:
     // "\x19Ethereum Signed Message\n" + len(msg) + msg
 
@@ -24,21 +32,32 @@ contract Signature {
     uint256 amount,
     uint256 nonce,
     bytes calldata signature
-  ) public pure returns (bool) {
+  ) internal pure returns (bool) {
     bytes32 messageHash = getMessageHash(to, amount, nonce);
     bytes32 ethSignedMessageHash = getEthSignedMessageHash(messageHash);
 
     return recoverSigner(ethSignedMessageHash, signature) == signer;
   }
 
-  function recoverSigner(bytes32 ethSignedMessageHash, bytes memory signature) public pure returns (address) {
+  function verifyNFT(
+    address signer,
+    address to,
+    bytes calldata signature
+  ) internal pure returns (bool) {
+    bytes32 messageHash = getMessageHashNFT(to);
+    bytes32 ethSignedMessageHash = getEthSignedMessageHash(messageHash);
+
+    return recoverSigner(ethSignedMessageHash, signature) == signer;
+  }
+
+  function recoverSigner(bytes32 ethSignedMessageHash, bytes memory signature) internal pure returns (address) {
     (bytes32 r, bytes32 s, uint8 v) = splitSignature(signature);
 
     return ecrecover(ethSignedMessageHash, v, r, s);
   }
 
   function splitSignature(bytes memory signature)
-    private
+    internal
     pure
     returns (
       bytes32 r,

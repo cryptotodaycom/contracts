@@ -21,8 +21,6 @@ export type { IERC165 } from "./IERC165";
 export type { ILISTF } from "./ILISTF";
 export type { LIST } from "./LIST";
 export type { LISTFuture } from "./LISTFuture";
-export type { Signature } from "./Signature";
-export type { SignatureNFT } from "./SignatureNFT";
 export type { TrooperNFT } from "./TrooperNFT";
 export type { VotingEngine } from "./VotingEngine";
 
@@ -46,7 +44,5 @@ export { IERC165__factory } from "./factories/IERC165__factory";
 export { ILISTF__factory } from "./factories/ILISTF__factory";
 export { LIST__factory } from "./factories/LIST__factory";
 export { LISTFuture__factory } from "./factories/LISTFuture__factory";
-export { Signature__factory } from "./factories/Signature__factory";
-export { SignatureNFT__factory } from "./factories/SignatureNFT__factory";
 export { TrooperNFT__factory } from "./factories/TrooperNFT__factory";
 export { VotingEngine__factory } from "./factories/VotingEngine__factory";

@@ -13,7 +13,6 @@ interface ILISTF is IERC20 {
 /// @title List token contract with fair launch and team token logic included
 /// @author Noah Jelich
 /// @notice Only 10% of the fair launch tokens are sent to the buyers instantly, the rest are vested through the voting engine
-/// @dev
 contract LIST is ERC20Capped, Ownable, Pausable {
   struct Claim {
     bool isIn;

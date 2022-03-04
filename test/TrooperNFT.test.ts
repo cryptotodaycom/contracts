@@ -47,7 +47,7 @@ describe("testing trooper nft minting", async function () {
       const payload = ethers.utils.arrayify(ethers.utils.solidityKeccak256(["address"], [user1.address]));
       const payloadBinary = ethers.utils.arrayify(payload);
 
-      await expect(trooperNft.verify(owner.address, user1.address, payloadBinary)).to.be.revertedWith("Invalid signature length");
+      await expect(trooperNft.connect(user1).claimTrooper(payloadBinary)).to.be.revertedWith("Invalid signature length");
     });
   });
 });
