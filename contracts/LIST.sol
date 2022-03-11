@@ -45,9 +45,11 @@ contract LIST is ERC20Capped, Ownable, Pausable {
     _pause();
   }
 
+  /// @notice implicitly callable only once (due to the cap), used for putting 87% of the tokens into the voting engine
   /// @dev implicitly callable only once (due to the cap), used for putting 87% of the tokens into the voting engine
-  function mintToEngine(address engine) external onlyOwner {
-    _mint(engine, (87 * cap()) / 100);
+  function mintReserveAndVestingInvestments(address engine, address reserve) external onlyOwner {
+    _mint(engine, (27 * cap()) / 100);
+    _mint(reserve, (60 * cap()) / 100);
   }
 
   /// @dev the transfer function transfers the eth from the fair launch to the team wallet (which is a simple wallet)

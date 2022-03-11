@@ -5,6 +5,7 @@ import { ethers, upgrades } from "hardhat";
 import { LIST, LISTFuture, VotingEngine } from "../typechain";
 
 const address0 = "0x0000000000000000000000000000000000000000";
+const reserve = "0xabc0000000000000000000000000000000000000";
 
 const supply: BigNumber = ethers.utils.parseUnits("100000000000", 18);
 
@@ -160,8 +161,8 @@ describe("testing v1", async function () {
   });
 
   describe("mint to voting engine", async function () {
-    it("mint to engine", async function () {
-      await expect(() => cryptoTodayToken.mintToEngine(votingEngine.address)).to.changeTokenBalance(
+    it("mint to engine and reserve wallets", async function () {
+      await expect(() => cryptoTodayToken.mintReserveAndVestingInvestments(votingEngine.address, reserve)).to.changeTokenBalance(
         cryptoTodayToken,
         votingEngine,
         supply.mul(87).div(100)

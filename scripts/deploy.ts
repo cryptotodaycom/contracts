@@ -14,6 +14,8 @@ const accountList = [
   { account: "0xA4f4b810E910bE0B4719DB1f319BE8A534b6921c", amount: supply.mul(2).div(30).toString() },
 ];
 
+const reserve = "0xabc0000000000000000000000000000000000000";
+
 async function main() {
   // Deploy LIST Futures tokens
   const CryptoTodayFutures = await ethers.getContractFactory("LISTFuture");
@@ -47,7 +49,7 @@ async function main() {
   console.log("votingEngine", votingEngine.address);
 
   // Mint 87% of the tokens to the engine (10% were minted earlier as LISTFuture, and 3% are minted at the end of the fair launch, tokens from the launch are vested offchain)
-  await cryptoTodayToken.mintToEngine(votingEngine.address);
+  await cryptoTodayToken.mintReserveAndVestingInvestments(votingEngine.address, reserve);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
