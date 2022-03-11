@@ -5,18 +5,17 @@ import { ethers, upgrades } from "hardhat";
 import { LIST, LISTFuture, VotingEngine } from "../typechain";
 
 const address0 = "0x0000000000000000000000000000000000000000";
-const reserve = "0xabc0000000000000000000000000000000000000";
 
 const supply: BigNumber = ethers.utils.parseUnits("100000000000", 18);
 
 describe("testing v1", async function () {
-  let user1: any, user2: any, user3: any, user4: any;
+  let user1: any, user2: any, user3: any, user4: any, reserve: any;
   let cryptoTodayFutures: LISTFuture;
   let cryptoTodayToken: LIST;
   let votingEngine: VotingEngine;
 
   before(async () => {
-    [, user1, user2, user3, user4] = await ethers.getSigners();
+    [, user1, user2, user3, user4, reserve] = await ethers.getSigners();
 
     // Deploy LIST Futures tokens
     const CryptoTodayFutures = await ethers.getContractFactory("LISTFuture");
@@ -162,10 +161,10 @@ describe("testing v1", async function () {
 
   describe("mint to voting engine", async function () {
     it("mint to engine and reserve wallets", async function () {
-      await expect(() => cryptoTodayToken.mintReserveAndVestingInvestments(votingEngine.address, reserve)).to.changeTokenBalance(
+      await expect(() => cryptoTodayToken.mintReserveAndVestingInvestments(votingEngine.address, reserve.address)).to.changeTokenBalance(
         cryptoTodayToken,
         votingEngine,
-        supply.mul(87).div(100)
+        supply.mul(27).div(100)
       );
 
       // await expect(await cryptoTodayToken.saleStartedTS()).to.be.equal(saleStartedTS.getTime() / 1000);
