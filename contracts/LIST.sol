@@ -1,6 +1,6 @@
 //SPDX-License-Identifier: MIT
 
-pragma solidity 0.8.12;
+pragma solidity 0.8.13;
 
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Capped.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -12,11 +12,14 @@ interface ILISTF is IERC20 {
 
 /// @title List token contract with fair launch and team token logic included
 /// @author Noah Jelich
-/// @notice Only 10% of the fair launch tokens are sent to the buyers instantly, the rest are vested through the voting engine
+/// @notice Only 10% of the fair launch tokens are sent to the buyers instantly, the rest are vested
 contract LIST is ERC20Capped, Ownable, Pausable {
+  uint256 private constant VESTING_PERIOD = 30 days;
+  uint256 private constant VESTING_PERIOD_TEAM = 365 days;
+
   struct Claim {
     bool isIn;
-    bool claimed;
+    uint256 claimed;
     uint256 share;
   }
 
@@ -47,8 +50,7 @@ contract LIST is ERC20Capped, Ownable, Pausable {
 
   /// @notice implicitly callable only once (due to the cap), used for putting 87% of the tokens into the voting engine
   /// @dev implicitly callable only once (due to the cap), used for putting 87% of the tokens into the voting engine
-  function mintReserveAndVestingInvestments(address engine, address reserve) external onlyOwner {
-    _mint(engine, (27 * cap()) / 100);
+  function mintReserve(address reserve) external onlyOwner {
     _mint(reserve, (60 * cap()) / 100);
   }
 
@@ -102,11 +104,20 @@ contract LIST is ERC20Capped, Ownable, Pausable {
   function claimShares() external {
     require(_saleEnded, "saleOngoing");
     require(_investors.investments[msg.sender].isIn, "notInvestor");
-    require(!_investors.investments[msg.sender].claimed, "alreadyClaimed");
+    uint256 currentTS = block.timestamp;
+    // pocetak, 1 + 0 - 0 = 1
+    // claima jednom, 1 + 0 - 1 = 0, ne moze vise
+    // prodje mjesec, 1 + 1 - 1 = 1 moze claimat jednom
+    // prodje jos 3, 1 + 4 - 1 = 4,
+    // claima 4, 1 + 4 - 5 = 0
+    // claima je sve, 1 + 9 - 10 = 0
+    uint256 diff = 1 + ((currentTS - saleStartedTS) / VESTING_PERIOD) - _investors.investments[msg.sender].claimed;
+    require(diff > 0, "alreadyClaimedAllowance");
+    require(_investors.investments[msg.sender].claimed < 10, "fullInvestmentClaimed");
 
-    _investors.investments[msg.sender].claimed = true;
+    _investors.investments[msg.sender].claimed += diff;
 
-    _mint(msg.sender, _investors.investments[msg.sender].share);
+    _mint(msg.sender, diff * _investors.investments[msg.sender].share);
   }
 
   /// @notice burn function to be used when converting futures into proper LIST tokens
@@ -114,8 +125,8 @@ contract LIST is ERC20Capped, Ownable, Pausable {
   function claimFutures(uint256 amount) external {
     require(_saleEnded, "saleNotDone");
     uint256 currentTS = block.timestamp;
-    uint256 diff = (currentTS - saleStartedTS) / 60 / 60 / 24;
-    require(diff > 365, "notEnoughTimePassed");
+    uint256 diff = (currentTS - saleStartedTS) / VESTING_PERIOD_TEAM;
+    require(diff != 0, "notEnoughTimePassed");
 
     address claimer = _msgSender();
     // burn LISTFuture when claiming LIST

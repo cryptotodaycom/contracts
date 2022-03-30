@@ -2,7 +2,7 @@ output: mythx.json
 format: json
 
 analyze:
-  solc: 0.8.12
+  solc: 0.8.13
   create-group: true
   group-name: CryptoToday
   remappings:
