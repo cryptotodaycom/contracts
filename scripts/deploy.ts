@@ -48,8 +48,8 @@ async function main() {
 
   console.log("votingEngine", votingEngine.address);
 
-  // Mint 87% of the tokens to the engine (10% were minted earlier as LISTFuture, and 3% are minted at the end of the fair launch, tokens from the launch are vested offchain)
-  await cryptoTodayToken.mintReserveAndVestingInvestments(votingEngine.address, reserve);
+  // Mint 60% of the tokens to the reserve
+  await cryptoTodayToken.mintReserve(reserve);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

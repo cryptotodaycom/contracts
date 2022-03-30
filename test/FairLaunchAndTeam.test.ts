@@ -119,14 +119,56 @@ describe("testing v1", async function () {
       await cryptoTodayToken.endSale();
     });
 
-    it("should allow claiming investment rewards", async function () {
+    it("should allow claiming initial investment rewards", async function () {
       await expect(() => cryptoTodayToken.connect(user1).claimShares()).to.changeTokenBalance(cryptoTodayToken, user1, supply.mul(75).div(10000));
       await expect(() => cryptoTodayToken.connect(user2).claimShares()).to.changeTokenBalance(cryptoTodayToken, user2, supply.mul(75).div(10000));
       await expect(() => cryptoTodayToken.connect(user3).claimShares()).to.changeTokenBalance(cryptoTodayToken, user3, supply.mul(150).div(10000));
     });
 
-    it("should revert if already claimed", async function () {
-      await expect(cryptoTodayToken.connect(user2).claimShares()).to.be.revertedWith("alreadyClaimed");
+    it("should revert if already claimed allowance", async function () {
+      await expect(cryptoTodayToken.connect(user2).claimShares()).to.be.revertedWith("alreadyClaimedAllowance");
+    });
+
+    it("should allow claiming if 1 month has passed", async function () {
+      await ethers.provider.send("evm_increaseTime", [60 * 60 * 24 * 31]);
+      await ethers.provider.send("evm_mine", []);
+
+      await expect(() => cryptoTodayToken.connect(user1).claimShares()).to.changeTokenBalance(cryptoTodayToken, user1, supply.mul(75).div(10000));
+      await expect(() => cryptoTodayToken.connect(user2).claimShares()).to.changeTokenBalance(cryptoTodayToken, user2, supply.mul(75).div(10000));
+      await expect(() => cryptoTodayToken.connect(user3).claimShares()).to.changeTokenBalance(cryptoTodayToken, user3, supply.mul(150).div(10000));
+    });
+
+    it("should revert if already claimed new allowance", async function () {
+      await expect(cryptoTodayToken.connect(user2).claimShares()).to.be.revertedWith("alreadyClaimedAllowance");
+    });
+
+    it("should allow claiming if another month has passed", async function () {
+      await ethers.provider.send("evm_increaseTime", [60 * 60 * 24 * 31]);
+      await ethers.provider.send("evm_mine", []);
+
+      await expect(() => cryptoTodayToken.connect(user1).claimShares()).to.changeTokenBalance(cryptoTodayToken, user1, supply.mul(75).div(10000));
+      await expect(() => cryptoTodayToken.connect(user2).claimShares()).to.changeTokenBalance(cryptoTodayToken, user2, supply.mul(75).div(10000));
+      await expect(() => cryptoTodayToken.connect(user3).claimShares()).to.changeTokenBalance(cryptoTodayToken, user3, supply.mul(150).div(10000));
+    });
+
+    it("should revert if already claimed allowance", async function () {
+      await expect(cryptoTodayToken.connect(user2).claimShares()).to.be.revertedWith("alreadyClaimedAllowance");
+    });
+
+    it("should allow claiming all if full vesting period passed month has passed", async function () {
+      await ethers.provider.send("evm_increaseTime", [60 * 60 * 24 * 31 * 8]);
+      await ethers.provider.send("evm_mine", []);
+
+      await expect(() => cryptoTodayToken.connect(user1).claimShares()).to.changeTokenBalance(cryptoTodayToken, user1, supply.mul(600).div(10000));
+      await expect(() => cryptoTodayToken.connect(user2).claimShares()).to.changeTokenBalance(cryptoTodayToken, user2, supply.mul(600).div(10000));
+      await expect(() => cryptoTodayToken.connect(user3).claimShares()).to.changeTokenBalance(cryptoTodayToken, user3, supply.mul(1200).div(10000));
+    });
+
+    it("should revert if trying to claim more than total allowance", async function () {
+      await ethers.provider.send("evm_increaseTime", [60 * 60 * 24 * 31]);
+      await ethers.provider.send("evm_mine", []);
+
+      await expect(cryptoTodayToken.connect(user2).claimShares()).to.be.revertedWith("fullInvestmentClaimed");
     });
 
     it("should revert if didn't invest", async function () {
@@ -161,11 +203,7 @@ describe("testing v1", async function () {
 
   describe("mint to voting engine", async function () {
     it("mint to engine and reserve wallets", async function () {
-      await expect(() => cryptoTodayToken.mintReserveAndVestingInvestments(votingEngine.address, reserve.address)).to.changeTokenBalance(
-        cryptoTodayToken,
-        votingEngine,
-        supply.mul(27).div(100)
-      );
+      await expect(() => cryptoTodayToken.mintReserve(reserve.address)).to.changeTokenBalance(cryptoTodayToken, reserve, supply.mul(60).div(100));
 
       // await expect(await cryptoTodayToken.saleStartedTS()).to.be.equal(saleStartedTS.getTime() / 1000);
     });
