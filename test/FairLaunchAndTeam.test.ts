@@ -119,7 +119,7 @@ describe("testing v1", async function () {
       await cryptoTodayToken.endSale();
     });
 
-    it("should allow claiming initial investment rewards", async function () {
+    it("should allow claiming initial investment rewards (initial 10% claimed)", async function () {
       await expect(() => cryptoTodayToken.connect(user1).claimShares()).to.changeTokenBalance(cryptoTodayToken, user1, supply.mul(75).div(10000));
       await expect(() => cryptoTodayToken.connect(user2).claimShares()).to.changeTokenBalance(cryptoTodayToken, user2, supply.mul(75).div(10000));
       await expect(() => cryptoTodayToken.connect(user3).claimShares()).to.changeTokenBalance(cryptoTodayToken, user3, supply.mul(150).div(10000));
@@ -129,8 +129,8 @@ describe("testing v1", async function () {
       await expect(cryptoTodayToken.connect(user2).claimShares()).to.be.revertedWith("alreadyClaimedAllowance");
     });
 
-    it("should allow claiming if 1 month has passed", async function () {
-      await ethers.provider.send("evm_increaseTime", [60 * 60 * 24 * 31]);
+    it("should allow claiming if 1 month has passed (20% claimed)", async function () {
+      await ethers.provider.send("evm_increaseTime", [60 * 60 * 24 * 30]);
       await ethers.provider.send("evm_mine", []);
 
       await expect(() => cryptoTodayToken.connect(user1).claimShares()).to.changeTokenBalance(cryptoTodayToken, user1, supply.mul(75).div(10000));
@@ -142,32 +142,35 @@ describe("testing v1", async function () {
       await expect(cryptoTodayToken.connect(user2).claimShares()).to.be.revertedWith("alreadyClaimedAllowance");
     });
 
-    it("should allow claiming if another month has passed", async function () {
-      await ethers.provider.send("evm_increaseTime", [60 * 60 * 24 * 31]);
+    it("should allow claiming if another month has passed (40% claimed)", async function () {
+      await ethers.provider.send("evm_increaseTime", [2 * 60 * 60 * 24 * 30]);
       await ethers.provider.send("evm_mine", []);
 
-      await expect(() => cryptoTodayToken.connect(user1).claimShares()).to.changeTokenBalance(cryptoTodayToken, user1, supply.mul(75).div(10000));
-      await expect(() => cryptoTodayToken.connect(user2).claimShares()).to.changeTokenBalance(cryptoTodayToken, user2, supply.mul(75).div(10000));
-      await expect(() => cryptoTodayToken.connect(user3).claimShares()).to.changeTokenBalance(cryptoTodayToken, user3, supply.mul(150).div(10000));
+      await expect(() => cryptoTodayToken.connect(user1).claimShares()).to.changeTokenBalance(cryptoTodayToken, user1, supply.mul(150).div(10000));
+      await expect(() => cryptoTodayToken.connect(user2).claimShares()).to.changeTokenBalance(cryptoTodayToken, user2, supply.mul(150).div(10000));
+      await expect(() => cryptoTodayToken.connect(user3).claimShares()).to.changeTokenBalance(cryptoTodayToken, user3, supply.mul(300).div(10000));
     });
 
     it("should revert if already claimed allowance", async function () {
       await expect(cryptoTodayToken.connect(user2).claimShares()).to.be.revertedWith("alreadyClaimedAllowance");
     });
 
-    it("should allow claiming all if full vesting period passed month has passed", async function () {
-      await ethers.provider.send("evm_increaseTime", [60 * 60 * 24 * 31 * 8]);
+    it("should allow claiming all if exactly the full vesting period passed (100% claimed)", async function () {
+      await ethers.provider.send("evm_increaseTime", [6 * 60 * 60 * 24 * 30]);
       await ethers.provider.send("evm_mine", []);
 
-      await expect(() => cryptoTodayToken.connect(user1).claimShares()).to.changeTokenBalance(cryptoTodayToken, user1, supply.mul(600).div(10000));
-      await expect(() => cryptoTodayToken.connect(user2).claimShares()).to.changeTokenBalance(cryptoTodayToken, user2, supply.mul(600).div(10000));
-      await expect(() => cryptoTodayToken.connect(user3).claimShares()).to.changeTokenBalance(cryptoTodayToken, user3, supply.mul(1200).div(10000));
+      await expect(() => cryptoTodayToken.connect(user2).claimShares()).to.changeTokenBalance(cryptoTodayToken, user2, supply.mul(450).div(10000));
+    });
+
+    it("should allow claiming all if full vesting period passed (100% claimed)", async function () {
+      await ethers.provider.send("evm_increaseTime", [2 * 60 * 60 * 24 * 30]);
+      await ethers.provider.send("evm_mine", []);
+
+      await expect(() => cryptoTodayToken.connect(user1).claimShares()).to.changeTokenBalance(cryptoTodayToken, user1, supply.mul(450).div(10000));
+      await expect(() => cryptoTodayToken.connect(user3).claimShares()).to.changeTokenBalance(cryptoTodayToken, user3, supply.mul(900).div(10000));
     });
 
     it("should revert if trying to claim more than total allowance", async function () {
-      await ethers.provider.send("evm_increaseTime", [60 * 60 * 24 * 31]);
-      await ethers.provider.send("evm_mine", []);
-
       await expect(cryptoTodayToken.connect(user2).claimShares()).to.be.revertedWith("fullInvestmentClaimed");
     });
 

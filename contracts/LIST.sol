@@ -48,8 +48,7 @@ contract LIST is ERC20Capped, Ownable, Pausable {
     _pause();
   }
 
-  /// @notice implicitly callable only once (due to the cap), used for putting 87% of the tokens into the voting engine
-  /// @dev implicitly callable only once (due to the cap), used for putting 87% of the tokens into the voting engine
+  /// @notice implicitly callable only once (due to the cap), used for putting 60% of the tokens into the reserve multisig
   function mintReserve(address reserve) external onlyOwner {
     _mint(reserve, (60 * cap()) / 100);
   }
@@ -100,24 +99,25 @@ contract LIST is ERC20Capped, Ownable, Pausable {
   }
 
   /// @notice allows claiming the first portion of the tokens bought during the fair sale
-  /// @dev as is indicated in the WP, only the fair launch tokens are vested, the rest are claied through the offchain system
+  /// @dev everything is vested through onchain
   function claimShares() external {
     require(_saleEnded, "saleOngoing");
     require(_investors.investments[msg.sender].isIn, "notInvestor");
+    require(_investors.investments[msg.sender].claimed < 10, "fullInvestmentClaimed");
     uint256 currentTS = block.timestamp;
-    // pocetak, 1 + 0 - 0 = 1
-    // claima jednom, 1 + 0 - 1 = 0, ne moze vise
-    // prodje mjesec, 1 + 1 - 1 = 1 moze claimat jednom
-    // prodje jos 3, 1 + 4 - 1 = 4,
-    // claima 4, 1 + 4 - 5 = 0
-    // claima je sve, 1 + 9 - 10 = 0
+    // diff = 1 + months - claimedMonths
     uint256 diff = 1 + ((currentTS - saleStartedTS) / VESTING_PERIOD) - _investors.investments[msg.sender].claimed;
     require(diff > 0, "alreadyClaimedAllowance");
-    require(_investors.investments[msg.sender].claimed < 10, "fullInvestmentClaimed");
 
-    _investors.investments[msg.sender].claimed += diff;
+    uint256 claimable;
+    if (diff > (10 - _investors.investments[msg.sender].claimed)) {
+      claimable = 10 - _investors.investments[msg.sender].claimed;
+    } else {
+      claimable = diff;
+    }
 
-    _mint(msg.sender, diff * _investors.investments[msg.sender].share);
+    _investors.investments[msg.sender].claimed += claimable;
+    _mint(msg.sender, claimable * _investors.investments[msg.sender].share);
   }
 
   /// @notice burn function to be used when converting futures into proper LIST tokens
