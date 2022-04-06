@@ -58,13 +58,6 @@ contract LIST is ERC20Capped, Ownable, Pausable {
     _pause();
     _saleEnded = true;
 
-    uint256 _claimableSupply = (3 * cap()) / 100;
-    for (uint256 i = 0; i < _investors.values.length; i++) {
-      address investor = _investors.values[i];
-      uint256 share = (_claimableSupply * investments[investor]) / totalStake;
-      _investors.investments[investor].share = share;
-    }
-
     payable(msg.sender).transfer(address(this).balance);
   }
 
@@ -103,10 +96,17 @@ contract LIST is ERC20Capped, Ownable, Pausable {
   function claimShares() external {
     require(_saleEnded, "saleOngoing");
     require(_investors.investments[msg.sender].isIn, "notInvestor");
+    // replacing the for loop in end sale, calculate the share once if it wasnt calculated before
+    if (_investors.investments[msg.sender].share == 0) {
+      uint256 share = (((3 * cap()) / 100) * investments[msg.sender]) / totalStake;
+      _investors.investments[msg.sender].share = share;
+    }
     require(_investors.investments[msg.sender].claimed < 10, "fullInvestmentClaimed");
     uint256 currentTS = block.timestamp;
     // diff = 1 + months - claimedMonths
     uint256 diff = 1 + ((currentTS - saleStartedTS) / VESTING_PERIOD) - _investors.investments[msg.sender].claimed;
+    // if diff > 0, then claimable > 0 - the if else below simply limits the claimable amount to the total claimable amount
+    // the require is above the if else in order to prevent wasting gas if someone tries to claim and there is nothing to claim
     require(diff > 0, "alreadyClaimedAllowance");
 
     uint256 claimable;
